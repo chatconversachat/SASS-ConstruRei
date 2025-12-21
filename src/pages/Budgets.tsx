@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, FileText, Calendar, DollarSign, User } from 'lucide-react';
+import { Search, FileText, Calendar, DollarSign } from 'lucide-react';
 import { Budget } from '@/types';
 
 const Budgets = () => {
