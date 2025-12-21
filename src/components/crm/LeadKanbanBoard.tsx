@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
-import { DndContext, DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  DndContext,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { Lead, Client } from '@/types';
 import LeadCard from './LeadCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
