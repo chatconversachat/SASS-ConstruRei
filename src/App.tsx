@@ -14,6 +14,10 @@ import Visits from "@/pages/Visits";
 import Financial from "@/pages/Financial";
 import Providers from "@/pages/Providers";
 import Auctions from "@/pages/Auctions";
+import Execution from "@/pages/Execution";
+import Fiscal from "@/pages/Fiscal";
+import Clients from "@/pages/Clients";
+import Reports from "@/pages/Reports";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -114,10 +118,37 @@ const AppRoutes = () => {
       />
       
       <Route 
+        path="/execution" 
+        element={
+          <ProtectedRoute>
+            <Execution />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route 
         path="/financial" 
         element={
           <ProtectedRoute>
             <Financial />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route 
+        path="/fiscal" 
+        element={
+          <ProtectedRoute>
+            <Fiscal />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route 
+        path="/clients" 
+        element={
+          <ProtectedRoute>
+            <Clients />
           </ProtectedRoute>
         } 
       />
@@ -136,6 +167,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Auctions />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route 
+        path="/reports" 
+        element={
+          <ProtectedRoute>
+            <Reports />
           </ProtectedRoute>
         } 
       />
