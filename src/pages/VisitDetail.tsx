@@ -93,6 +93,7 @@ const VisitDetail = () => {
   };
 
   const handleSignatureCancel = () => {
+    setSignature(null); // Clear signature if cancelled
     setShowSignaturePad(false);
   };
 
