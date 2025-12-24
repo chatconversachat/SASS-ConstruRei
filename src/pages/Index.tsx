@@ -4,17 +4,15 @@ import { useAuth } from "@/context/AuthContext";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, loading } = useAuth();
+  const { loading } = useAuth(); // Ainda precisamos do loading para evitar redirecionamentos prematuros
 
   useEffect(() => {
     if (!loading) {
-      if (isAuthenticated) {
-        navigate("/");
-      } else {
-        navigate("/login");
-      }
+      // Ao invés de verificar a autenticação aqui, sempre navegue para a rota principal.
+      // O ProtectedRoute em App.tsx cuidará do redirecionamento para /login se o usuário não estiver autenticado.
+      navigate("/");
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [loading, navigate]);
 
   if (loading) {
     return (
