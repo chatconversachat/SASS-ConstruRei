@@ -76,15 +76,17 @@ const AppRoutes = () => {
         } 
       />
       
+      {/* O Dashboard agora é a página inicial e não exige autenticação */}
       <Route 
         path="/" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Dashboard />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
+      {/* As demais rotas continuam protegidas */}
       <Route 
         path="/crm" 
         element={
