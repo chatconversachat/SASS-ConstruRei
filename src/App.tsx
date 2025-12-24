@@ -18,6 +18,8 @@ import Execution from "@/pages/Execution";
 import Fiscal from "@/pages/Fiscal";
 import Clients from "@/pages/Clients";
 import Reports from "@/pages/Reports";
+import Settings from "@/pages/Settings";
+import BudgetDetail from "@/pages/BudgetDetail";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -109,6 +111,15 @@ const AppRoutes = () => {
       />
       
       <Route 
+        path="/budgets/:id" 
+        element={
+          <ProtectedRoute>
+            <BudgetDetail />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route 
         path="/service-orders" 
         element={
           <ProtectedRoute>
@@ -176,6 +187,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Reports />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route 
+        path="/settings" 
+        element={
+          <ProtectedRoute>
+            <Settings />
           </ProtectedRoute>
         } 
       />
