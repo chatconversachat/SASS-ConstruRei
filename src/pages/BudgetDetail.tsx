@@ -17,7 +17,8 @@ import {
   MapPin,
   Plus,
   Trash2,
-  Wrench // Novo ícone para Ordem de Serviço
+  Wrench, // Novo ícone para Ordem de Serviço
+  CheckCircle // Importar CheckCircle
 } from 'lucide-react';
 import { Budget, ServiceOrder } from '@/types'; // Importar ServiceOrder
 
