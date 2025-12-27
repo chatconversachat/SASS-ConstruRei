@@ -76,13 +76,12 @@ const AppRoutes = () => {
         } 
       />
       
-      {/* A rota raiz agora exibe o Dashboard diretamente com o Layout, sem proteção de login */}
       <Route 
         path="/" 
         element={
-          <Layout>
+          <ProtectedRoute>
             <Dashboard />
-          </Layout>
+          </ProtectedRoute>
         } 
       />
       
