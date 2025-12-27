@@ -76,12 +76,13 @@ const AppRoutes = () => {
         } 
       />
       
+      {/* Dashboard agora é uma rota pública para que não seja a primeira página de login */}
       <Route 
         path="/" 
         element={
-          <ProtectedRoute>
+          <Layout> {/* Mantém o layout para o Dashboard */}
             <Dashboard />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
