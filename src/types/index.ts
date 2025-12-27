@@ -141,3 +141,17 @@ export interface DistributionConfig {
   gabrielly: number;
   capital_giro: number;
 }
+
+export interface Appointment {
+  id: string;
+  title: string;
+  date: string; // ISO string or Date object
+  startTime: string; // e.g., "09:00"
+  endTime: string; // e.g., "10:00"
+  clientName: string;
+  technicianName?: string;
+  type: 'visit' | 'meeting' | 'budget' | 'other';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+  notes?: string;
+  propertyAddress?: string;
+}

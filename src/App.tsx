@@ -22,6 +22,7 @@ import Settings from "@/pages/Settings";
 import BudgetDetail from "@/pages/BudgetDetail";
 import VisitDetail from "@/pages/VisitDetail";
 import ServiceOrderDetail from "@/pages/ServiceOrderDetail";
+import Scheduling from "@/pages/Scheduling"; // Importar a nova página
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -170,6 +171,16 @@ const AppRoutes = () => {
         element={
           <Layout>
             <Settings />
+          </Layout>
+        } 
+      />
+
+      {/* Nova rota para Agendamento */}
+      <Route 
+        path="/scheduling" 
+        element={
+          <Layout>
+            <Scheduling />
           </Layout>
         } 
       />

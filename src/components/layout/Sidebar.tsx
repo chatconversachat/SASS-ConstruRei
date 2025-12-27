@@ -5,7 +5,7 @@ import {
   Kanban, 
   FileText, 
   Users, 
-  Calendar, 
+  Calendar, // Usado para Ordens de Serviço, mas também pode ser para Agendamento
   DollarSign, 
   BarChart2, 
   Settings,
@@ -13,7 +13,8 @@ import {
   User,
   LogOut,
   Wrench,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Clock // Novo ícone para Agendamento
 } from 'lucide-react';
 // import { useAuth } from '@/context/AuthContext'; // Removido
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', icon: Home, path: '/' },
     { name: 'CRM Comercial', icon: Kanban, path: '/crm' },
+    { name: 'Agendamento', icon: Clock, path: '/scheduling' }, {/* Novo item de menu */}
     { name: 'Visitas Técnicas', icon: Wrench, path: '/visits' },
     { name: 'Orçamentos', icon: FileText, path: '/budgets' },
     { name: 'Ordens de Serviço', icon: Calendar, path: '/service-orders' },
