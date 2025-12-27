@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, DollarSign, TrendingUp, TrendingDown, Plus, Edit, FileInvoice } from 'lucide-react'; // Importar novos ícones
+import { Search, DollarSign, TrendingUp, TrendingDown, Plus, Edit, Receipt, Trash2 } from 'lucide-react'; // Importar Receipt
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { toast } from 'sonner'; // Importar toast
 import { FinancialEntry } from '@/types'; // Importar FinancialEntry
@@ -185,8 +185,7 @@ const Financial = () => {
                   {cashFlowData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
-                </Pie>
-                <Tooltip />
+                </Pie>                <Tooltip />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -240,7 +239,7 @@ const Financial = () => {
                       </Button>
                       {entry.type === 'income' && entry.status === 'paid' && (
                         <Button variant="secondary" size="sm" onClick={() => handleIssueInvoice(entry.id)}>
-                          <FileInvoice className="h-4 w-4" />
+                          <Receipt className="h-4 w-4" />
                         </Button>
                       )}
                     </td>
@@ -251,7 +250,7 @@ const Financial = () => {
           </div>
           <div className="flex justify-end mt-4">
             <Button onClick={() => handleIssueInvoice()}>
-              <FileInvoice className="h-4 w-4 mr-2" />
+              <Receipt className="h-4 w-4 mr-2" />
               Emitir Nota Fiscal Geral
             </Button>
           </div>
