@@ -9,6 +9,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Appointment } from '@/types';
+import { toast } from 'sonner'; // Importar toast
 
 const mockAppointments: Appointment[] = [
   {
@@ -112,6 +113,14 @@ const Scheduling = () => {
     }
   };
 
+  const handleNewAppointment = () => {
+    toast.info('Funcionalidade de criar novo agendamento em desenvolvimento.');
+  };
+
+  const handleViewAppointmentDetails = (appointmentId: string) => {
+    toast.info(`Visualizando detalhes do agendamento: ${appointmentId}`);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -142,7 +151,7 @@ const Scheduling = () => {
             <CardTitle className="text-lg">
               Compromissos para {selectedDate ? format(selectedDate, 'dd/MM/yyyy', { locale: ptBR }) : 'Nenhum dia selecionado'}
             </CardTitle>
-            <Button size="sm">Novo Agendamento</Button>
+            <Button size="sm" onClick={handleNewAppointment}>Novo Agendamento</Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {appointmentsForSelectedDate.length > 0 ? (
@@ -183,7 +192,7 @@ const Scheduling = () => {
                     )}
                   </div>
                   <div className="flex justify-end mt-3">
-                    <Button variant="outline" size="sm">Ver Detalhes</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleViewAppointmentDetails(app.id)}>Ver Detalhes</Button>
                   </div>
                 </div>
               ))

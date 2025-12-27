@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, User, Phone, Mail, MapPin } from 'lucide-react';
+import { toast } from 'sonner'; // Importar toast
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,6 +48,18 @@ const Clients = () => {
     return type === 'real_estate' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800';
   };
 
+  const handleNewClient = () => {
+    toast.info('Funcionalidade de adicionar novo cliente em desenvolvimento.');
+  };
+
+  const handleViewClient = (clientName: string) => {
+    toast.info(`Visualizando detalhes do cliente: ${clientName}`);
+  };
+
+  const handleEditClient = (clientName: string) => {
+    toast.info(`Editando cliente: ${clientName}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -66,7 +79,7 @@ const Clients = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Novo Cliente</Button>
+          <Button onClick={handleNewClient}>Novo Cliente</Button>
         </div>
       </div>
 
@@ -103,10 +116,10 @@ const Clients = () => {
               </div>
               
               <div className="flex space-x-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewClient(client.name)}>
                   Visualizar
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button size="sm" className="flex-1" onClick={() => handleEditClient(client.name)}>
                   Editar
                 </Button>
               </div>

@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Search, Calendar, User, Camera, Video } from 'lucide-react';
 import { Visit } from '@/types';
 import { useNavigate } from 'react-router-dom';
-import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
+import { toast } from 'sonner'; // Importar toast
 
 const Visits = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,6 +76,10 @@ const Visits = () => {
     setMockVisits([...mockVisits, newVisit]);
     navigate(`/visits/${newId}`);
     toast.success(`Nova visita ${newVisitNumber} criada!`);
+  };
+
+  const handleEditVisit = (visitNumber: string) => {
+    toast.info(`Editando visita: #${visitNumber}`);
   };
 
   const getStatusColor = (status: Visit['status']) => {
@@ -169,7 +174,7 @@ const Visits = () => {
                 >
                   Visualizar
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button size="sm" className="flex-1" onClick={() => handleEditVisit(visit.visit_number)}>
                   Editar
                 </Button>
               </div>

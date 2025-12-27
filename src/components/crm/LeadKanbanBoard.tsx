@@ -64,7 +64,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
         <Button 
           variant="outline" 
           className="w-full border-dashed"
-          onClick={() => onCreate(status)}
+          onClick={() => onCreate(status)} // Botão de adicionar lead
         >
           <Plus className="h-4 w-4 mr-2" />
           Adicionar Lead

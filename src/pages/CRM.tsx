@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import LeadCreateEditForm from '@/components/crm/LeadCreateEditForm';
 import LeadViewDetails from '@/components/crm/LeadViewDetails';
+import { toast } from 'sonner'; // Importar toast
 
 const CRM = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -137,6 +138,7 @@ const CRM = () => {
     if (selectedLead) {
       // Edição
       setLeads(leads.map(l => l.id === newLead.id ? newLead : l));
+      toast.success(`Lead #${newLead.id} atualizado com sucesso!`);
     } else {
       // Criação
       setLeads([...leads, newLead]);
@@ -155,6 +157,7 @@ const CRM = () => {
         };
         setClients([...clients, newClient]);
       }
+      toast.success(`Lead #${newLead.id} criado com sucesso!`);
     }
     setShowCreateEditModal(false);
     setSelectedLead(null);

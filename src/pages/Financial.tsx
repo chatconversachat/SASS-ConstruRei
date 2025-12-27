@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, DollarSign, TrendingUp, TrendingDown, Plus, Edit, Receipt, Trash2 } from 'lucide-react'; // Importar Receipt
+import { Search, DollarSign, TrendingUp, TrendingDown, Plus, Edit, Receipt, Trash2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { toast } from 'sonner'; // Importar toast
-import { FinancialEntry } from '@/types'; // Importar FinancialEntry
+import { toast } from 'sonner';
+import { FinancialEntry } from '@/types';
 
 const Financial = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,11 +76,11 @@ const Financial = () => {
 
   const handleIssueInvoice = (entryId?: string) => {
     if (entryId) {
-      toast.success(`Nota fiscal emitida e enviada para o lançamento ${entryId}!`);
+      toast.success(`Nota fiscal emitida e enviada para o lançamento ${entryId}! (Simulado)`);
     } else {
-      toast.success('Nota fiscal emitida e enviada para o cliente!');
+      toast.success('Nota fiscal geral emitida e enviada para o cliente! (Simulado)');
     }
-    // Lógica para emissão e envio de nota fiscal
+    // Lógica para emissão e envio de nota fiscal (requer backend)
   };
 
   return (
@@ -203,7 +203,7 @@ const Financial = () => {
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-2">Descrição</th>
-                  <th className="text-left py-2">Número Relacionado</th> {/* Novo cabeçalho */}
+                  <th className="text-left py-2">Número Relacionado</th>
                   <th className="text-left py-2">Valor</th>
                   <th className="text-left py-2">Tipo</th>
                   <th className="text-left py-2">Vencimento</th>
@@ -215,7 +215,7 @@ const Financial = () => {
                 {financialEntries.map((entry) => (
                   <tr key={entry.id} className="border-b">
                     <td className="py-3">{entry.description}</td>
-                    <td className="py-3 text-sm text-gray-600">{entry.related_number || 'N/A'}</td> {/* Exibir número relacionado */}
+                    <td className="py-3 text-sm text-gray-600">{entry.related_number || 'N/A'}</td>
                     <td className={`py-3 font-medium ${getTypeColor(entry.type)}`}>
                       {entry.type === 'income' ? '+' : '-'} R$ {entry.value.toLocaleString('pt-BR')}
                     </td>

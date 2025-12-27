@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, User, Star, Phone, Mail } from 'lucide-react';
+import { toast } from 'sonner'; // Importar toast
 
 const Providers = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,6 +43,18 @@ const Providers = () => {
     }
   ];
 
+  const handleNewProvider = () => {
+    toast.info('Funcionalidade de adicionar novo prestador em desenvolvimento.');
+  };
+
+  const handleViewProvider = (providerName: string) => {
+    toast.info(`Visualizando detalhes do prestador: ${providerName}`);
+  };
+
+  const handleEditProvider = (providerName: string) => {
+    toast.info(`Editando prestador: ${providerName}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -61,7 +74,7 @@ const Providers = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Novo Prestador</Button>
+          <Button onClick={handleNewProvider}>Novo Prestador</Button>
         </div>
       </div>
 
@@ -103,10 +116,10 @@ const Providers = () => {
               </div>
               
               <div className="flex space-x-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewProvider(provider.name)}>
                   Visualizar
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button size="sm" className="flex-1" onClick={() => handleEditProvider(provider.name)}>
                   Editar
                 </Button>
               </div>

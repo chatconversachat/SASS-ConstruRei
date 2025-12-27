@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,14 +21,16 @@ import {
   CheckCircle 
 } from 'lucide-react';
 import { Budget, ServiceOrder } from '@/types';
-import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
+import { generatePdf } from '@/utils/pdfGenerator'; // Importar utilitário de PDF
 
 const BudgetDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
-  
+  const budgetContentRef = useRef<HTMLDivElement>(null); // Ref para o conteúdo do orçamento
+
   // Estados para os dados do orçamento
   const [budgetData, setBudgetData] = useState<Budget>(() => {
     let initialBudget: Budget;
@@ -140,7 +142,9 @@ const BudgetDetail = () => {
 
   const handleSend = () => {
     setBudgetData(prevData => ({ ...prevData, status: 'sent', sent_at: new Date().toISOString() }));
-    toast.success('Orçamento enviado com sucesso!');
+    toast.success('Orçamento enviado por e-mail e WhatsApp com sucesso! (Simulado)');
+    // Em um app real, aqui você chamaria uma API de backend para enviar o PDF
+    // por e-mail e/ou WhatsApp.
   };
 
   const handleApprove = () => {
@@ -172,6 +176,18 @@ const BudgetDetail = () => {
     toast.success(`Ordem de Serviço ${newServiceOrder.service_order_number} gerada com sucesso!`);
     updateSequence('serviceOrder'); // Incrementa a sequência da OS
     navigate(`/service-orders/${newServiceOrderId}`, { state: { newServiceOrder } });
+  };
+
+  const handlePrintPdf = async () => {
+    if (budgetContentRef.current) {
+      await generatePdf({
+        elementId: 'budget-content',
+        filename: `Orcamento-${budgetData.budget_number}.pdf`,
+      });
+      toast.success('PDF do orçamento gerado e baixado!');
+    } else {
+      toast.error('Não foi possível gerar o PDF. Conteúdo do orçamento não encontrado.');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -208,9 +224,9 @@ const BudgetDetail = () => {
         </div>
         
         <div className="flex space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handlePrintPdf}>
             <Printer className="h-4 w-4 mr-2" />
-            Imprimir
+            Imprimir / Gerar PDF
           </Button>
           {budgetData.status === 'draft' && (
             <Button onClick={handleSend}>
@@ -234,7 +250,7 @@ const BudgetDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6" id="budget-content" ref={budgetContentRef}> {/* Adicionado ID e ref para PDF */}
           {/* Informações do Cliente */}
           <Card>
             <CardHeader>

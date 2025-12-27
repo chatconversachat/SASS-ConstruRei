@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Calendar, DollarSign, User } from 'lucide-react';
+import { toast } from 'sonner'; // Importar toast
 
 const Auctions = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -66,6 +67,18 @@ const Auctions = () => {
     return statusMap[status] || status;
   };
 
+  const handleNewAuction = () => {
+    toast.info('Funcionalidade de criar novo leilão em desenvolvimento.');
+  };
+
+  const handleViewAuction = (auctionId: string) => {
+    toast.info(`Visualizando detalhes do leilão: #${auctionId}`);
+  };
+
+  const handlePlaceBid = (auctionId: string) => {
+    toast.info(`Funcionalidade de dar lance no leilão #${auctionId} em desenvolvimento.`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -85,7 +98,7 @@ const Auctions = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Novo Leilão</Button>
+          <Button onClick={handleNewAuction}>Novo Leilão</Button>
         </div>
       </div>
 
@@ -130,10 +143,10 @@ const Auctions = () => {
               </div>
               
               <div className="flex space-x-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewAuction(auction.id)}>
                   Visualizar
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button size="sm" className="flex-1" onClick={() => handlePlaceBid(auction.id)}>
                   Dar Lance
                 </Button>
               </div>

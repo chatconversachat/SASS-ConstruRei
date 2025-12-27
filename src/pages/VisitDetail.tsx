@@ -23,7 +23,7 @@ import {
   DollarSign 
 } from 'lucide-react';
 import { Visit, Budget } from '@/types';
-import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
 
 const VisitDetail = () => {
   const { id } = useParams();

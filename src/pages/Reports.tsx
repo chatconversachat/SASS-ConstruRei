@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Search, Download, Calendar, TrendingUp, Users, DollarSign } from 'lucide-react';
+import { toast } from 'sonner'; // Importar toast
 
 const Reports = () => {
   const [dateRange, setDateRange] = useState('month');
@@ -45,6 +46,10 @@ const Reports = () => {
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
   const PROVIDER_COLORS = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'];
+
+  const handleExportReport = () => {
+    toast.info(`Exportando relatório de tipo "${reportType}" para o período "${dateRange}". (Simulado)`);
+  };
 
   return (
     <div className="space-y-6">
@@ -99,7 +104,7 @@ const Reports = () => {
           </div>
           
           <div className="flex justify-end mt-4">
-            <Button>
+            <Button onClick={() => toast.info('Filtros aplicados! (Simulado)')}>
               <Search className="h-4 w-4 mr-2" />
               Filtrar
             </Button>
@@ -345,7 +350,7 @@ const Reports = () => {
 
       {/* Botão de exportação */}
       <div className="flex justify-end">
-        <Button>
+        <Button onClick={handleExportReport}>
           <Download className="h-4 w-4 mr-2" />
           Exportar Relatório
         </Button>

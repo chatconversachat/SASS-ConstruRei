@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, FileText, Calendar, DollarSign, TrendingUp } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { toast } from 'sonner'; // Importar toast
 
 const Fiscal = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,6 +30,14 @@ const Fiscal = () => {
 
   const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444'];
 
+  const handleExportDRE = () => {
+    toast.info('Funcionalidade de exportar DRE em desenvolvimento.');
+  };
+
+  const handleViewDocument = (docName: string) => {
+    toast.info(`Visualizando documento fiscal: ${docName}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -48,7 +57,7 @@ const Fiscal = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Exportar DRE</Button>
+          <Button onClick={handleExportDRE}>Exportar DRE</Button>
         </div>
       </div>
 
@@ -223,7 +232,7 @@ const Fiscal = () => {
                 </div>
                 <div className="mt-2 flex justify-between items-center">
                   <span className="font-medium">{doc.value}</span>
-                  <Button variant="outline" size="sm">Visualizar</Button>
+                  <Button variant="outline" size="sm" onClick={() => handleViewDocument(doc.name)}>Visualizar</Button>
                 </div>
               </div>
             ))}

@@ -5,7 +5,7 @@ import {
   Kanban, 
   FileText, 
   Users, 
-  Calendar, // Usado para Ordens de Serviço, mas também pode ser para Agendamento
+  Calendar, 
   DollarSign, 
   BarChart2, 
   Settings,
@@ -14,15 +14,14 @@ import {
   LogOut,
   Wrench,
   FileSpreadsheet,
-  Clock // Novo ícone para Agendamento
+  Clock 
 } from 'lucide-react';
-// import { useAuth } from '@/context/AuthContext'; // Removido
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner'; // Importar toast
 
 const Sidebar = () => {
   const location = useLocation();
-  // const { user, logout } = useAuth(); // Removido
 
   const menuItems = [
     { name: 'Dashboard', icon: Home, path: '/' },
@@ -40,6 +39,11 @@ const Sidebar = () => {
     { name: 'Relatórios', icon: BarChart2, path: '/reports' },
     { name: 'Configurações', icon: Settings, path: '/settings' },
   ];
+
+  const handleLogout = () => {
+    toast.info('Funcionalidade de logout simulada. Você seria desconectado.');
+    // Em um app real, aqui você limparia o estado de autenticação e redirecionaria para a tela de login.
+  };
 
   return (
     <div className="flex flex-col h-full bg-gray-900 text-white w-64">
@@ -83,7 +87,7 @@ const Sidebar = () => {
         <Button 
           variant="outline" 
           className="w-full justify-start text-white border-gray-700 hover:bg-gray-800"
-          // onClick={() => logout()} // Removido
+          onClick={handleLogout}
         >
           <LogOut className="h-4 w-4 mr-2" />
           Sair

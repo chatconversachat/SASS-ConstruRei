@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Search, Calendar, User, AlertCircle } from 'lucide-react';
 import { ServiceOrder } from '@/types';
 import { useNavigate } from 'react-router-dom';
-import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
+import { toast } from 'sonner'; // Importar toast
 
 const ServiceOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,6 +90,10 @@ const ServiceOrders = () => {
     setMockServiceOrders([...mockServiceOrders, newServiceOrder]);
     navigate(`/service-orders/${newId}`);
     toast.success(`Nova Ordem de Serviço ${newServiceOrderNumber} criada!`);
+  };
+
+  const handleEditServiceOrder = (serviceOrderNumber: string) => {
+    toast.info(`Editando Ordem de Serviço: #${serviceOrderNumber}`);
   };
 
   const getStatusColor = (status: ServiceOrder['status']) => {
@@ -185,7 +190,7 @@ const ServiceOrders = () => {
                 >
                   Visualizar
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button size="sm" className="flex-1" onClick={() => handleEditServiceOrder(order.service_order_number)}>
                   Editar
                 </Button>
               </div>

@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Search, FileText, Calendar, DollarSign, User } from 'lucide-react';
 import { Budget } from '@/types';
 import { useNavigate } from 'react-router-dom';
-import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
+import { toast } from 'sonner'; // Importar toast
 
 const Budgets = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,6 +75,10 @@ const Budgets = () => {
     setMockBudgets([...mockBudgets, newBudget]);
     navigate(`/budgets/${newId}`);
     toast.success(`Novo orçamento ${newBudgetNumber} criado!`);
+  };
+
+  const handleEditBudget = (budgetNumber: string) => {
+    toast.info(`Editando orçamento: #${budgetNumber}`);
   };
 
   const getStatusColor = (status: Budget['status']) => {
@@ -160,7 +165,7 @@ const Budgets = () => {
                 >
                   Visualizar
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button size="sm" className="flex-1" onClick={() => handleEditBudget(budget.budget_number)}>
                   Editar
                 </Button>
               </div>

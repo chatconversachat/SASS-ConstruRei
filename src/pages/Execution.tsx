@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Search, Calendar, User, Camera, Video, FileText } from 'lucide-react';
+import { toast } from 'sonner'; // Importar toast
 
 const Execution = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,6 +41,18 @@ const Execution = () => {
     }
   ];
 
+  const handleNewRecord = () => {
+    toast.info('Funcionalidade de criar novo registro de diário de obra em desenvolvimento.');
+  };
+
+  const handleViewRecord = (recordId: string) => {
+    toast.info(`Visualizando detalhes do registro: #${recordId}`);
+  };
+
+  const handleEditRecord = (recordId: string) => {
+    toast.info(`Editando registro: #${recordId}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -59,7 +72,7 @@ const Execution = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Novo Registro</Button>
+          <Button onClick={handleNewRecord}>Novo Registro</Button>
         </div>
       </div>
 
@@ -115,10 +128,10 @@ const Execution = () => {
               )}
               
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => handleViewRecord(entry.id)}>
                   Visualizar
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => handleEditRecord(entry.id)}>
                   Editar
                 </Button>
               </div>
