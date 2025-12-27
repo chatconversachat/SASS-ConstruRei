@@ -27,7 +27,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', icon: Home, path: '/' },
     { name: 'CRM Comercial', icon: Kanban, path: '/crm' },
-    { name: 'Agendamento', icon: Clock, path: '/scheduling' }, {/* Novo item de menu */}
+    { name: 'Agendamento', icon: Clock, path: '/scheduling' }, 
     { name: 'Visitas Técnicas', icon: Wrench, path: '/visits' },
     { name: 'Orçamentos', icon: FileText, path: '/budgets' },
     { name: 'Ordens de Serviço', icon: Calendar, path: '/service-orders' },
