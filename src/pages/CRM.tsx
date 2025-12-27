@@ -4,12 +4,16 @@ import { Lead, Client } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import Modal from '@/components/common/Modal';
+import LeadForm from '@/components/crm/LeadForm';
 
 const CRM = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+  const [editingLead, setEditingLead] = useState<{ lead: Lead; client: Client } | null>(null);
   
   // Dados mockados para demonstração
-  const mockClients: Client[] = [
+  const [mockClients, setMockClients] = useState<Client[]>([
     {
       id: '1',
       name: 'João Silva',
@@ -28,9 +32,9 @@ const CRM = () => {
       type: 'real_estate',
       created_at: new Date().toISOString()
     }
-  ];
+  ]);
 
-  const mockLeads: Lead[] = [
+  const [mockLeads, setMockLeads] = useState<Lead[]>([
     {
       id: '1',
       client_id: '1',
@@ -75,7 +79,7 @@ const CRM = () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
-  ];
+  ]);
 
   const statusColumns = [
     { status: 'received', title: 'Lead Recebido' },
@@ -89,16 +93,80 @@ const CRM = () => {
     { status: 'lost', title: 'Perdido' }
   ];
 
+  const handleCreateLead = (status: Lead['status']) => {
+    setEditingLead(null);
+    setIsLeadModalOpen(true);
+  };
+
   const handleEditLead = (lead: Lead) => {
-    console.log('Editar lead:', lead);
+    const client = mockClients.find(c => c.id === lead.client_id);
+    if (client) {
+      setEditingLead({ lead, client });
+      setIsLeadModalOpen(true);
+    } else {
+      console.error("Cliente não encontrado para o lead:", lead);
+    }
   };
 
   const handleViewLead = (lead: Lead) => {
-    console.log('Visualizar lead:', lead);
+    // Por enquanto, a visualização será feita no mesmo modal de edição
+    handleEditLead(lead);
   };
 
-  const handleCreateLead = (status: Lead['status']) => {
-    console.log('Criar lead com status:', status);
+  const handleSaveLead = (data: any) => {
+    if (editingLead) {
+      // Lógica para atualizar um lead existente
+      setMockLeads(prevLeads => prevLeads.map(l => 
+        l.id === editingLead.lead.id 
+          ? { ...l, 
+              property_address: data.propertyAddress, 
+              lead_source: data.leadSource, 
+              estimated_value: data.estimatedValue, 
+              responsible_id: data.responsibleId, 
+              status: data.status,
+              notes: data.notes,
+              updated_at: new Date().toISOString()
+            } 
+          : l
+      ));
+      setMockClients(prevClients => prevClients.map(c => 
+        c.id === editingLead.client.id
+          ? { ...c,
+              name: data.clientName,
+              email: data.clientEmail,
+              phone: data.clientPhone,
+            }
+          : c
+      ));
+    } else {
+      // Lógica para criar um novo lead
+      const newClientId = (mockClients.length + 1).toString();
+      const newClient: Client = {
+        id: newClientId,
+        name: data.clientName,
+        email: data.clientEmail,
+        phone: data.clientPhone,
+        address: data.propertyAddress, // Usando o endereço da propriedade como endereço do cliente por simplicidade
+        type: 'individual', // Default para individual
+        created_at: new Date().toISOString()
+      };
+      setMockClients(prevClients => [...prevClients, newClient]);
+
+      const newLead: Lead = {
+        id: (mockLeads.length + 1).toString(),
+        client_id: newClientId,
+        property_address: data.propertyAddress,
+        lead_source: data.leadSource,
+        estimated_value: data.estimatedValue,
+        responsible_id: data.responsibleId,
+        status: data.status,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        notes: data.notes,
+      };
+      setMockLeads(prevLeads => [...prevLeads, newLead]);
+    }
+    setIsLeadModalOpen(false);
   };
 
   return (
@@ -120,7 +188,7 @@ const CRM = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Novo Lead</Button>
+          <Button onClick={() => handleCreateLead('received')}>Novo Lead</Button>
         </div>
       </div>
 
@@ -140,6 +208,19 @@ const CRM = () => {
           ))}
         </div>
       </div>
+
+      <Modal
+        isOpen={isLeadModalOpen}
+        onClose={() => setIsLeadModalOpen(false)}
+        title={editingLead ? "Editar Lead" : "Novo Lead"}
+        description={editingLead ? "Edite as informações do lead e do cliente." : "Preencha os dados para criar um novo lead."}
+      >
+        <LeadForm 
+          initialData={editingLead || undefined}
+          onSave={handleSaveLead}
+          onCancel={() => setIsLeadModalOpen(false)}
+        />
+      </Modal>
     </div>
   );
 };
