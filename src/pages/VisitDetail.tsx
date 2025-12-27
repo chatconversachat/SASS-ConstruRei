@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import FileUpload from '@/components/ui/file-upload';
 import SignaturePad from '@/components/ui/signature-pad';
+import { toast } from 'sonner'; // Importar toast
 import { 
   ArrowLeft, 
   Calendar, 
@@ -18,8 +19,17 @@ import {
   FileText,
   Clock,
   CheckCircle,
-  XCircle
+  XCircle,
+  DollarSign // Novo ícone para orçamento
 } from 'lucide-react';
+import { Visit, Budget } from '@/types'; // Importar Budget
+
+// Função para gerar um número de visita/orçamento/OS
+const generateNumber = (prefix: string) => {
+  const year = new Date().getFullYear().toString().slice(-2);
+  const randomNum = Math.floor(1000 + Math.random() * 9000); // 4 dígitos
+  return `${randomNum}-${year}`;
+};
 
 const VisitDetail = () => {
   const { id } = useParams();
@@ -30,9 +40,11 @@ const VisitDetail = () => {
   const [videos, setVideos] = useState<File[]>([]);
   const [signature, setSignature] = useState<string | null>(null);
   
-  // Estados para os dados da visita
-  const [visitData, setVisitData] = useState({
-    client: 'João Silva',
+  // Dados mockados para a visita (simulando busca por ID)
+  const [visitData, setVisitData] = useState<Visit>({
+    id: id || '001',
+    visit_number: id ? `VIS-${id}` : generateNumber('VIS'), // Gerar número se for nova
+    client: 'João Silva', // Mocked client data
     propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
     technician: 'Carlos Silva',
     scheduledDate: '2023-06-20T10:00:00',
@@ -47,20 +59,29 @@ const VisitDetail = () => {
       'Substituição completa dos azulejos',
       'Nivelamento do piso',
       'Troca da torneira'
-    ]
+    ],
+    photos: [], // Usaremos o estado 'photos' para os arquivos
+    videos: [], // Usaremos o estado 'videos' para os arquivos
+    lead_id: 'lead1', // Mocked lead_id
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   });
 
   const handleSave = () => {
     setIsEditing(false);
-    // Lógica de salvamento
+    // Lógica de salvamento (em um app real, enviaria para o backend)
+    toast.success('Visita salva com sucesso!');
   };
 
   const handleCompleteVisit = () => {
     setVisitData({
       ...visitData,
-      status: 'completed'
+      status: 'completed',
+      photos: photos.map(f => f.name), // Salvar nomes dos arquivos mockados
+      videos: videos.map(f => f.name), // Salvar nomes dos arquivos mockados
     });
-    // Lógica para completar visita
+    toast.success('Visita finalizada com sucesso!');
+    // Lógica para completar visita (em um app real, enviaria para o backend)
   };
 
   const handleCancelVisit = () => {
@@ -68,7 +89,8 @@ const VisitDetail = () => {
       ...visitData,
       status: 'cancelled'
     });
-    // Lógica para cancelar visita
+    toast.info('Visita cancelada.');
+    // Lógica para cancelar visita (em um app real, enviaria para o backend)
   };
 
   const handlePhotosAdded = (newPhotos: File[]) => {
@@ -90,11 +112,47 @@ const VisitDetail = () => {
   const handleSignatureSave = (dataUrl: string) => {
     setSignature(dataUrl);
     setShowSignaturePad(false);
+    toast.success('Assinatura salva!');
   };
 
   const handleSignatureCancel = () => {
     setSignature(null); // Clear signature if cancelled
     setShowSignaturePad(false);
+    toast.info('Assinatura cancelada.');
+  };
+
+  const handleGenerateBudget = () => {
+    if (visitData.status !== 'completed') {
+      toast.error('A visita precisa ser finalizada para gerar um orçamento.');
+      return;
+    }
+    if (photos.length === 0 && videos.length === 0) {
+      toast.error('É necessário anexar fotos ou vídeos para gerar um orçamento.');
+      return;
+    }
+
+    // Simular a criação de um orçamento
+    const newBudgetId = Date.now().toString();
+    const newBudget: Budget = {
+      id: newBudgetId,
+      budget_number: visitData.visit_number, // Mantém o mesmo número
+      lead_id: visitData.lead_id,
+      visit_id: visitData.id,
+      items: [
+        { id: 'item1', description: 'Serviço de Demolição', quantity: 1, unit_value: 500, total_value: 500, service_type: 'Demolição' },
+        { id: 'item2', description: 'Reforma Geral', quantity: 1, unit_value: 10000, total_value: 10000, service_type: 'Reforma' },
+      ],
+      total_value: 10500,
+      status: 'draft',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Em um aplicativo real, você enviaria `newBudget` para o backend
+    // e então navegaria para a página de detalhes do orçamento recém-criado.
+    console.log('Orçamento gerado:', newBudget);
+    toast.success(`Orçamento ${newBudget.budget_number} gerado com sucesso!`);
+    navigate(`/budgets/${newBudgetId}`, { state: { newBudget } }); // Passa o novo orçamento via state
   };
 
   const getStatusColor = (status: string) => {
@@ -123,7 +181,7 @@ const VisitDetail = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Visita Técnica #{id || '001'}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Visita Técnica #{visitData.visit_number}</h1>
             <p className="text-gray-600">Detalhes da visita técnica</p>
           </div>
         </div>
@@ -140,6 +198,12 @@ const VisitDetail = () => {
                 Finalizar Visita
               </Button>
             </>
+          )}
+          {visitData.status === 'completed' && (
+            <Button onClick={handleGenerateBudget}>
+              <DollarSign className="h-4 w-4 mr-2" />
+              Gerar Orçamento
+            </Button>
           )}
         </div>
       </div>

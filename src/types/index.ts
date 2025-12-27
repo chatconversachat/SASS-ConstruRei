@@ -33,6 +33,7 @@ export interface Lead {
 
 export interface Visit {
   id: string;
+  visit_number: string; // Novo campo
   lead_id: string;
   scheduled_date: string;
   technician_id: string;
@@ -46,6 +47,7 @@ export interface Visit {
 
 export interface Budget {
   id: string;
+  budget_number: string; // Novo campo
   lead_id: string;
   visit_id?: string;
   items: BudgetItem[];
@@ -68,6 +70,7 @@ export interface BudgetItem {
 
 export interface ServiceOrder {
   id: string;
+  service_order_number: string; // Novo campo
   budget_id: string;
   client_id: string;
   technician_id: string;
@@ -75,6 +78,10 @@ export interface ServiceOrder {
   start_date?: string;
   end_date?: string;
   notes?: string;
+  completion_date?: string; // Novo campo
+  completion_notes?: string; // Novo campo
+  completion_photos?: string[]; // Novo campo
+  completion_videos?: string[]; // Novo campo
   created_at: string;
   updated_at: string;
 }
@@ -103,6 +110,7 @@ export interface FinancialEntry {
   category_id: string;
   created_at: string;
   updated_at: string;
+  related_number?: string; // Novo campo para vincular ao número da OS/Orçamento/Visita
 }
 
 export interface FinancialCategory {

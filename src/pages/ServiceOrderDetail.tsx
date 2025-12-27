@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input'; // Importar Input para notas de conclusão
+import FileUpload from '@/components/ui/file-upload'; // Importar FileUpload
+import { toast } from 'sonner'; // Importar toast
 import { 
   ArrowLeft, 
   Calendar, 
@@ -16,24 +19,42 @@ import {
   XCircle,
   Play,
   Pause,
-  Package
+  Package,
+  Send, // Ícone para disparar OS
+  Camera, // Ícone para fotos de conclusão
+  Video // Ícone para vídeos de conclusão
 } from 'lucide-react';
+import { ServiceOrder, FinancialEntry } from '@/types'; // Importar FinancialEntry
+
+// Função para gerar um número de visita/orçamento/OS
+const generateNumber = (prefix: string) => {
+  const year = new Date().getFullYear().toString().slice(-2);
+  const randomNum = Math.floor(1000 + Math.random() * 9000); // 4 dígitos
+  return `${randomNum}-${year}`;
+};
 
 const ServiceOrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
+  const [showCompletionForm, setShowCompletionForm] = useState(false); // Estado para o formulário de conclusão
+  const [completionNotes, setCompletionNotes] = useState('');
+  const [completionPhotos, setCompletionPhotos] = useState<File[]>([]);
+  const [completionVideos, setCompletionVideos] = useState<File[]>([]);
   
   // Estados para os dados da ordem de serviço
-  const [orderData, setOrderData] = useState({
-    client: 'João Silva',
+  const [orderData, setOrderData] = useState<ServiceOrder>({
+    id: id || '001',
+    service_order_number: id ? `OS-${id}` : generateNumber('OS'), // Gerar número se for nova
+    client: 'João Silva', // Mocked client data
     propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
     technician: 'Carlos Silva',
     startDate: '2023-06-22T08:00:00',
     endDate: '2023-06-25T18:00:00',
     status: 'scheduled',
     notes: 'Reforma completa da cozinha com troca de armários e piso.',
-    budgetId: '123',
+    budgetId: '123', // Mocked budgetId
     services: [
       {
         id: '1',
@@ -86,12 +107,29 @@ const ServiceOrderDetail = () => {
         unit: 'un',
         status: 'pending'
       }
-    ]
+    ],
+    budget_id: 'budget1', // Mocked budget_id
+    client_id: 'client1', // Mocked client_id
+    technician_id: 'tech1', // Mocked technician_id
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   });
+
+  // Efeito para carregar dados de uma nova OS vindo da página de orçamentos
+  useEffect(() => {
+    if (location.state && (location.state as { newServiceOrder: ServiceOrder }).newServiceOrder) {
+      const newServiceOrder = (location.state as { newServiceOrder: ServiceOrder }).newServiceOrder;
+      setOrderData(newServiceOrder);
+      toast.info(`Ordem de Serviço ${newServiceOrder.service_order_number} carregada do orçamento.`);
+      // Limpar o estado de navegação para evitar recarregar
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   const handleSave = () => {
     setIsEditing(false);
-    // Lógica de salvamento
+    // Lógica de salvamento (em um app real, enviaria para o backend)
+    toast.success('Ordem de Serviço salva com sucesso!');
   };
 
   const handleStartService = () => {
@@ -99,6 +137,7 @@ const ServiceOrderDetail = () => {
       ...orderData,
       status: 'in_progress'
     });
+    toast.success('Serviço iniciado!');
     // Lógica para iniciar serviço
   };
 
@@ -107,15 +146,64 @@ const ServiceOrderDetail = () => {
       ...orderData,
       status: 'scheduled'
     });
+    toast.info('Serviço pausado.');
     // Lógica para pausar serviço
   };
 
+  const handleDispatchServiceOrder = () => {
+    toast.success(`Ordem de Serviço ${orderData.service_order_number} disparada para o prestador ${orderData.technician}!`);
+    // Em um app real, aqui seria a lógica para enviar e-mail/WhatsApp
+  };
+
   const handleCompleteService = () => {
-    setOrderData({
-      ...orderData,
-      status: 'finished'
-    });
-    // Lógica para completar serviço
+    setShowCompletionForm(true); // Abre o formulário de conclusão
+  };
+
+  const submitCompletion = () => {
+    setOrderData(prevData => ({
+      ...prevData,
+      status: 'finished',
+      completion_date: new Date().toISOString(),
+      completion_notes: completionNotes,
+      completion_photos: completionPhotos.map(f => f.name),
+      completion_videos: completionVideos.map(f => f.name),
+    }));
+    setShowCompletionForm(false);
+    toast.success('Ordem de Serviço finalizada com sucesso!');
+
+    // Lógica para criar uma entrada financeira (conta a receber)
+    const financialEntry: FinancialEntry = {
+      id: Date.now().toString(),
+      service_order_id: orderData.id,
+      related_number: orderData.service_order_number,
+      description: `Recebimento OS #${orderData.service_order_number}`,
+      value: 10500, // Valor mockado, idealmente viria do orçamento
+      type: 'income',
+      status: 'pending',
+      due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Vencimento em 7 dias
+      category_id: 'cat-income-services', // Categoria mockada
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    console.log('Entrada financeira gerada:', financialEntry);
+    toast.info('Entrada financeira gerada para esta OS.');
+    // Em um app real, você enviaria `financialEntry` para o backend
+  };
+
+  const handleCompletionPhotosAdded = (newPhotos: File[]) => {
+    setCompletionPhotos([...completionPhotos, ...newPhotos]);
+  };
+
+  const handleCompletionVideosAdded = (newVideos: File[]) => {
+    setCompletionVideos([...completionVideos, ...newVideos]);
+  };
+
+  const handleCompletionPhotoRemove = (fileName: string) => {
+    setCompletionPhotos(completionPhotos.filter(photo => photo.name !== fileName));
+  };
+
+  const handleCompletionVideoRemove = (fileName: string) => {
+    setCompletionVideos(completionVideos.filter(video => video.name !== fileName));
   };
 
   const getStatusColor = (status: string) => {
@@ -190,12 +278,18 @@ const ServiceOrderDetail = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Ordem de Serviço #{id || '001'}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Ordem de Serviço #{orderData.service_order_number}</h1>
             <p className="text-gray-600">Detalhes da ordem de serviço</p>
           </div>
         </div>
         
         <div className="flex space-x-2">
+          {orderData.status === 'issued' && (
+            <Button onClick={handleDispatchServiceOrder}>
+              <Send className="h-4 w-4 mr-2" />
+              Disparar OS para Prestador
+            </Button>
+          )}
           {orderData.status === 'scheduled' && (
             <Button onClick={handleStartService}>
               <Play className="h-4 w-4 mr-2" />
@@ -242,13 +336,13 @@ const ServiceOrderDetail = () => {
                 <div className="flex items-center text-sm text-gray-600">
                   <Calendar className="h-4 w-4 mr-2" />
                   <span className="font-medium mr-2">Data de Início:</span>
-                  <span>{new Date(orderData.startDate).toLocaleDateString('pt-BR')}</span>
+                  <span>{orderData.start_date ? new Date(orderData.start_date).toLocaleDateString('pt-BR') : 'N/A'}</span>
                 </div>
                 
                 <div className="flex items-center text-sm text-gray-600">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <span className="font-medium mr-2">Data de Término:</span>
-                  <span>{new Date(orderData.endDate).toLocaleDateString('pt-BR')}</span>
+                  <span className="font-medium mr-2">Data de Término Prevista:</span>
+                  <span>{orderData.endDate ? new Date(orderData.endDate).toLocaleDateString('pt-BR') : 'N/A'}</span>
                 </div>
               </div>
               
@@ -291,7 +385,7 @@ const ServiceOrderDetail = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {orderData.services.map((service) => (
+                {orderData.services?.map((service) => (
                   <div key={service.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium">{service.description}</h3>
@@ -337,7 +431,7 @@ const ServiceOrderDetail = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {orderData.materials.map((material) => (
+                    {orderData.materials?.map((material) => (
                       <tr key={material.id} className="border-b">
                         <td className="py-3">
                           <div className="flex items-center">
@@ -360,6 +454,58 @@ const ServiceOrderDetail = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Detalhes de Conclusão (se a OS estiver finalizada) */}
+          {orderData.status === 'finished' && orderData.completion_date && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Detalhes da Conclusão</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center text-sm text-gray-600">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <span className="font-medium mr-2">Data de Conclusão:</span>
+                  <span>{new Date(orderData.completion_date).toLocaleDateString('pt-BR')}</span>
+                </div>
+                {orderData.completion_notes && (
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-1">Notas de Conclusão:</h4>
+                    <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md whitespace-pre-line">
+                      {orderData.completion_notes}
+                    </p>
+                  </div>
+                )}
+                {orderData.completion_photos && orderData.completion_photos.length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2 flex items-center">
+                      <Camera className="h-4 w-4 mr-2" />
+                      Fotos de Conclusão ({orderData.completion_photos.length})
+                    </h4>
+                    <div className="flex space-x-2 overflow-x-auto pb-2">
+                      {orderData.completion_photos.map((photoName, index) => (
+                        <div key={index} className="bg-gray-200 border-2 border-dashed rounded-xl w-24 h-24 flex-shrink-0" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {orderData.completion_videos && orderData.completion_videos.length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2 flex items-center">
+                      <Video className="h-4 w-4 mr-2" />
+                      Vídeos de Conclusão ({orderData.completion_videos.length})
+                    </h4>
+                    <div className="flex space-x-2 overflow-x-auto pb-2">
+                      {orderData.completion_videos.map((videoName, index) => (
+                        <div key={index} className="bg-gray-200 border-2 border-dashed rounded-xl w-24 h-24 flex-shrink-0 flex items-center justify-center">
+                          <Video className="h-8 w-8 text-gray-500" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -449,11 +595,84 @@ const ServiceOrderDetail = () => {
                   <p className="font-medium">Serviço iniciado</p>
                   <p className="text-sm text-gray-600">22/06/2023 às 08:00</p>
                 </div>
+                {orderData.status === 'finished' && orderData.completion_date && (
+                  <div className="border-l-2 border-green-500 pl-4 py-1">
+                    <p className="font-medium">Serviço finalizado</p>
+                    <p className="text-sm text-gray-600">{new Date(orderData.completion_date).toLocaleDateString('pt-BR')} às {new Date(orderData.completion_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Modal de Conclusão da OS */}
+      {showCompletionForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-lg">
+            <CardHeader>
+              <CardTitle>Finalizar Ordem de Serviço</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label htmlFor="completionNotes" className="block text-sm font-medium text-gray-700 mb-1">
+                  Notas de Conclusão
+                </label>
+                <Textarea
+                  id="completionNotes"
+                  value={completionNotes}
+                  onChange={(e) => setCompletionNotes(e.target.value)}
+                  placeholder="Descreva os detalhes da conclusão do serviço..."
+                  rows={4}
+                />
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-1">Fotos de Conclusão</h4>
+                <FileUpload
+                  onFilesAdded={handleCompletionPhotosAdded}
+                  onFileRemove={handleCompletionPhotoRemove}
+                  acceptedFiles={completionPhotos}
+                  accept="image/*"
+                />
+                {completionPhotos.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {completionPhotos.map((photo, index) => (
+                      <div key={index} className="relative bg-gray-200 border-2 border-dashed rounded-xl w-full h-24 flex-shrink-0" />
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-1">Vídeos de Conclusão</h4>
+                <FileUpload
+                  onFilesAdded={handleCompletionVideosAdded}
+                  onFileRemove={handleCompletionVideoRemove}
+                  acceptedFiles={completionVideos}
+                  accept="video/*"
+                />
+                {completionVideos.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {completionVideos.map((video, index) => (
+                      <div key={index} className="relative bg-gray-200 border-2 border-dashed rounded-xl w-full h-24 flex-shrink-0 flex items-center justify-center">
+                        <Video className="h-6 w-6 text-gray-500" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowCompletionForm(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={submitCompletion}>
+                  Confirmar Conclusão
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

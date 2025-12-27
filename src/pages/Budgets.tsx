@@ -5,14 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, FileText, Calendar, DollarSign, User } from 'lucide-react';
 import { Budget } from '@/types';
+import { useNavigate } from 'react-router-dom'; // Importar useNavigate
 
 const Budgets = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate(); // Inicializar useNavigate
   
   // Dados mockados para demonstração
   const mockBudgets: Budget[] = [
     {
       id: '1',
+      budget_number: '0001-23', // Adicionado
       lead_id: '1',
       items: [
         { id: '1', description: 'Demolição de parede', quantity: 1, unit_value: 800, total_value: 800, service_type: 'Demolição' },
@@ -26,6 +29,7 @@ const Budgets = () => {
     },
     {
       id: '2',
+      budget_number: '0002-23', // Adicionado
       lead_id: '2',
       items: [
         { id: '1', description: 'Instalação de ar condicionado', quantity: 2, unit_value: 2500, total_value: 5000, service_type: 'Instalação' }
@@ -39,6 +43,7 @@ const Budgets = () => {
     },
     {
       id: '3',
+      budget_number: '0003-23', // Adicionado
       lead_id: '3',
       items: [
         { id: '1', description: 'Pintura interna', quantity: 1, unit_value: 3500, total_value: 3500, service_type: 'Pintura' },
@@ -99,7 +104,7 @@ const Budgets = () => {
           <Card key={budget.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">Orçamento #{budget.id}</CardTitle>
+                <CardTitle className="text-lg">Orçamento #{budget.budget_number}</CardTitle> {/* Exibir budget_number */}
                 <Badge className={getStatusColor(budget.status)}>
                   {getStatusText(budget.status)}
                 </Badge>
@@ -127,7 +132,12 @@ const Budgets = () => {
               </div>
               
               <div className="flex space-x-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => navigate(`/budgets/${budget.id}`)} // Navegar para detalhes
+                >
                   Visualizar
                 </Button>
                 <Button size="sm" className="flex-1">

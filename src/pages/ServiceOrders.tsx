@@ -5,14 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Calendar, User, AlertCircle } from 'lucide-react';
 import { ServiceOrder } from '@/types';
+import { useNavigate } from 'react-router-dom'; // Importar useNavigate
 
 const ServiceOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate(); // Inicializar useNavigate
   
   // Dados mockados para demonstração
   const mockServiceOrders: ServiceOrder[] = [
     {
       id: '1',
+      service_order_number: '0001-23', // Adicionado
       budget_id: '1',
       client_id: '1',
       technician_id: 'Tech1',
@@ -23,6 +26,7 @@ const ServiceOrders = () => {
     },
     {
       id: '2',
+      service_order_number: '0002-23', // Adicionado
       budget_id: '2',
       client_id: '2',
       technician_id: 'Tech2',
@@ -33,6 +37,7 @@ const ServiceOrders = () => {
     },
     {
       id: '3',
+      service_order_number: '0003-23', // Adicionado
       budget_id: '3',
       client_id: '1',
       technician_id: 'Tech1',
@@ -43,6 +48,7 @@ const ServiceOrders = () => {
     },
     {
       id: '4',
+      service_order_number: '0004-23', // Adicionado
       budget_id: '4',
       client_id: '3',
       technician_id: 'Tech3',
@@ -53,6 +59,7 @@ const ServiceOrders = () => {
     },
     {
       id: '5',
+      service_order_number: '0005-23', // Adicionado
       budget_id: '5',
       client_id: '2',
       technician_id: 'Tech2',
@@ -120,7 +127,7 @@ const ServiceOrders = () => {
           <Card key={order.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">OS #{order.id}</CardTitle>
+                <CardTitle className="text-lg">OS #{order.service_order_number}</CardTitle> {/* Exibir service_order_number */}
                 <Badge className={getStatusColor(order.status)}>
                   {getStatusText(order.status)}
                 </Badge>
@@ -150,7 +157,12 @@ const ServiceOrders = () => {
               )}
               
               <div className="flex space-x-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => navigate(`/service-orders/${order.id}`)} // Navegar para detalhes
+                >
                   Visualizar
                 </Button>
                 <Button size="sm" className="flex-1">

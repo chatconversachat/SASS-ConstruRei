@@ -3,20 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+import { Search, DollarSign, TrendingUp, TrendingDown, Plus, Edit, FileInvoice } from 'lucide-react'; // Importar novos ícones
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { toast } from 'sonner'; // Importar toast
+import { FinancialEntry } from '@/types'; // Importar FinancialEntry
 
 const Financial = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
   // Dados mockados para demonstração
-  const financialEntries = [
-    { id: '1', description: 'Pagamento OS #123', value: 5000, type: 'income', status: 'paid', dueDate: '2023-06-15', paymentDate: '2023-06-15' },
-    { id: '2', description: 'Material para reforma', value: 2500, type: 'expense', status: 'paid', dueDate: '2023-06-10', paymentDate: '2023-06-10' },
-    { id: '3', description: 'Pagamento técnico', value: 1200, type: 'expense', status: 'paid', dueDate: '2023-06-05', paymentDate: '2023-06-05' },
-    { id: '4', description: 'OS #124', value: 3500, type: 'income', status: 'pending', dueDate: '2023-06-20' },
-    { id: '5', description: 'Equipamentos', value: 8000, type: 'expense', status: 'pending', dueDate: '2023-06-25' },
-  ];
+  const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>([
+    { id: '1', description: 'Pagamento OS #123', value: 5000, type: 'income', status: 'paid', dueDate: '2023-06-15', paymentDate: '2023-06-15', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-123' },
+    { id: '2', description: 'Material para reforma', value: 2500, type: 'expense', status: 'paid', dueDate: '2023-06-10', paymentDate: '2023-06-10', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-123' },
+    { id: '3', description: 'Pagamento técnico', value: 1200, type: 'expense', status: 'paid', dueDate: '2023-06-05', paymentDate: '2023-06-05', category_id: 'cat3', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-124' },
+    { id: '4', description: 'OS #124', value: 3500, type: 'income', status: 'pending', dueDate: '2023-06-20', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-124' },
+    { id: '5', description: 'Equipamentos', value: 8000, type: 'expense', status: 'pending', dueDate: '2023-06-25', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-125' },
+  ]);
 
   const revenueData = [
     { name: 'Jan', receita: 4000, despesa: 2400 },
@@ -56,6 +58,31 @@ const Financial = () => {
     return statusMap[status] || status;
   };
 
+  const handleAddEntry = () => {
+    toast.info('Funcionalidade de adicionar lançamento em desenvolvimento.');
+    // Lógica para abrir um modal/formulário de adição
+  };
+
+  const handleEditEntry = (entryId: string) => {
+    toast.info(`Funcionalidade de editar lançamento ${entryId} em desenvolvimento.`);
+    // Lógica para abrir um modal/formulário de edição
+  };
+
+  const handleDeleteEntry = (entryId: string) => {
+    setFinancialEntries(financialEntries.filter(entry => entry.id !== entryId));
+    toast.success('Lançamento excluído com sucesso!');
+    // Lógica para excluir lançamento
+  };
+
+  const handleIssueInvoice = (entryId?: string) => {
+    if (entryId) {
+      toast.success(`Nota fiscal emitida e enviada para o lançamento ${entryId}!`);
+    } else {
+      toast.success('Nota fiscal emitida e enviada para o cliente!');
+    }
+    // Lógica para emissão e envio de nota fiscal
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -75,7 +102,10 @@ const Financial = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Novo Lançamento</Button>
+          <Button onClick={handleAddEntry}>
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Lançamento
+          </Button>
         </div>
       </div>
 
@@ -174,6 +204,7 @@ const Financial = () => {
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-2">Descrição</th>
+                  <th className="text-left py-2">Número Relacionado</th> {/* Novo cabeçalho */}
                   <th className="text-left py-2">Valor</th>
                   <th className="text-left py-2">Tipo</th>
                   <th className="text-left py-2">Vencimento</th>
@@ -185,6 +216,7 @@ const Financial = () => {
                 {financialEntries.map((entry) => (
                   <tr key={entry.id} className="border-b">
                     <td className="py-3">{entry.description}</td>
+                    <td className="py-3 text-sm text-gray-600">{entry.related_number || 'N/A'}</td> {/* Exibir número relacionado */}
                     <td className={`py-3 font-medium ${getTypeColor(entry.type)}`}>
                       {entry.type === 'income' ? '+' : '-'} R$ {entry.value.toLocaleString('pt-BR')}
                     </td>
@@ -199,13 +231,29 @@ const Financial = () => {
                         {getStatusText(entry.status)}
                       </Badge>
                     </td>
-                    <td className="py-3">
-                      <Button variant="outline" size="sm">Visualizar</Button>
+                    <td className="py-3 flex space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEditEntry(entry.id)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDeleteEntry(entry.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      {entry.type === 'income' && entry.status === 'paid' && (
+                        <Button variant="secondary" size="sm" onClick={() => handleIssueInvoice(entry.id)}>
+                          <FileInvoice className="h-4 w-4" />
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex justify-end mt-4">
+            <Button onClick={() => handleIssueInvoice()}>
+              <FileInvoice className="h-4 w-4 mr-2" />
+              Emitir Nota Fiscal Geral
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner'; // Importar toast
 import { 
   ArrowLeft, 
   Printer, 
@@ -15,17 +16,29 @@ import {
   User, 
   MapPin,
   Plus,
-  Trash2
+  Trash2,
+  Wrench // Novo ícone para Ordem de Serviço
 } from 'lucide-react';
+import { Budget, ServiceOrder } from '@/types'; // Importar ServiceOrder
+
+// Função para gerar um número de visita/orçamento/OS
+const generateNumber = (prefix: string) => {
+  const year = new Date().getFullYear().toString().slice(-2);
+  const randomNum = Math.floor(1000 + Math.random() * 9000); // 4 dígitos
+  return `${randomNum}-${year}`;
+};
 
 const BudgetDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
   
   // Estados para os dados do orçamento
-  const [budgetData, setBudgetData] = useState({
-    client: 'João Silva',
+  const [budgetData, setBudgetData] = useState<Budget>({
+    id: id || '001',
+    budget_number: id ? `ORC-${id}` : generateNumber('ORC'), // Gerar número se for nova
+    client: 'João Silva', // Mocked client data
     propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
     leadSource: 'Indicação',
     status: 'draft',
@@ -34,24 +47,38 @@ const BudgetDetail = () => {
         id: '1',
         description: 'Demolição de parede',
         quantity: 1,
-        unitValue: 800,
-        totalValue: 800,
-        serviceType: 'Demolição'
+        unit_value: 800,
+        total_value: 800,
+        service_type: 'Demolição'
       },
       {
         id: '2',
         description: 'Reforma de cozinha',
         quantity: 1,
-        unitValue: 12000,
-        totalValue: 12000,
-        serviceType: 'Reforma'
+        unit_value: 12000,
+        total_value: 12000,
+        service_type: 'Reforma'
       }
     ],
     notes: 'Orçamento para reforma completa da cozinha com troca de armários e piso.',
-    validity: '30 dias'
+    validity: '30 dias', // Este campo não está na interface Budget, manter como mock local
+    lead_id: 'lead1', // Mocked lead_id
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   });
 
-  const totalValue = budgetData.items.reduce((sum, item) => sum + item.totalValue, 0);
+  // Efeito para carregar dados de um novo orçamento vindo da página de visitas
+  useEffect(() => {
+    if (location.state && (location.state as { newBudget: Budget }).newBudget) {
+      const newBudget = (location.state as { newBudget: Budget }).newBudget;
+      setBudgetData(newBudget);
+      toast.info(`Orçamento ${newBudget.budget_number} carregado da visita.`);
+      // Limpar o estado de navegação para evitar recarregar
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
+
+  const totalValue = budgetData.items.reduce((sum, item) => sum + item.total_value, 0);
 
   const handleAddItem = () => {
     setBudgetData({
@@ -62,9 +89,9 @@ const BudgetDetail = () => {
           id: Date.now().toString(),
           description: '',
           quantity: 1,
-          unitValue: 0,
-          totalValue: 0,
-          serviceType: ''
+          unit_value: 0,
+          total_value: 0,
+          service_type: ''
         }
       ]
     });
@@ -78,33 +105,69 @@ const BudgetDetail = () => {
   };
 
   const handleItemChange = (itemId: string, field: string, value: string | number) => {
-    setBudgetData({
-      ...budgetData,
-      items: budgetData.items.map(item => {
+    setBudgetData(prevData => ({
+      ...prevData,
+      items: prevData.items.map(item => {
         if (item.id === itemId) {
           const updatedItem = { ...item, [field]: value };
           
           // Recalcular valor total se quantidade ou valor unitário mudar
-          if (field === 'quantity' || field === 'unitValue') {
-            updatedItem.totalValue = 
-              (field === 'quantity' ? Number(value) : item.quantity) * 
-              (field === 'unitValue' ? Number(value) : item.unitValue);
+          if (field === 'quantity' || field === 'unit_value') {
+            updatedItem.total_value = 
+              (field === 'quantity' ? Number(value) : updatedItem.quantity) * 
+              (field === 'unit_value' ? Number(value) : updatedItem.unit_value);
           }
           
           return updatedItem;
         }
         return item;
       })
-    });
+    }));
   };
 
   const handleSave = () => {
     setIsEditing(false);
-    // Lógica de salvamento
+    // Lógica de salvamento (em um app real, enviaria para o backend)
+    toast.success('Orçamento salvo com sucesso!');
   };
 
   const handleSend = () => {
-    // Lógica de envio
+    setBudgetData(prevData => ({ ...prevData, status: 'sent', sent_at: new Date().toISOString() }));
+    toast.success('Orçamento enviado com sucesso!');
+    // Lógica de envio (em um app real, enviaria para o backend)
+  };
+
+  const handleApprove = () => {
+    setBudgetData(prevData => ({ ...prevData, status: 'approved', approved_at: new Date().toISOString() }));
+    toast.success('Orçamento aprovado!');
+  };
+
+  const handleGenerateServiceOrder = () => {
+    if (budgetData.status !== 'approved') {
+      toast.error('O orçamento precisa ser aprovado para gerar uma Ordem de Serviço.');
+      return;
+    }
+
+    // Simular a criação de uma Ordem de Serviço
+    const newServiceOrderId = Date.now().toString();
+    const newServiceOrder: ServiceOrder = {
+      id: newServiceOrderId,
+      service_order_number: budgetData.budget_number, // Mantém o mesmo número
+      budget_id: budgetData.id,
+      client_id: budgetData.lead_id, // Usando lead_id como client_id mockado
+      technician_id: 'Tech1', // Mocked technician
+      status: 'issued',
+      start_date: new Date().toISOString(),
+      notes: budgetData.notes,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Em um aplicativo real, você enviaria `newServiceOrder` para o backend
+    // e então navegaria para a página de detalhes da OS recém-criada.
+    console.log('Ordem de Serviço gerada:', newServiceOrder);
+    toast.success(`Ordem de Serviço ${newServiceOrder.service_order_number} gerada com sucesso!`);
+    navigate(`/service-orders/${newServiceOrderId}`, { state: { newServiceOrder } }); // Passa a nova OS via state
   };
 
   const getStatusColor = (status: string) => {
@@ -135,7 +198,7 @@ const BudgetDetail = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Orçamento #{id || '001'}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Orçamento #{budgetData.budget_number}</h1>
             <p className="text-gray-600">Detalhes do orçamento</p>
           </div>
         </div>
@@ -145,10 +208,24 @@ const BudgetDetail = () => {
             <Printer className="h-4 w-4 mr-2" />
             Imprimir
           </Button>
-          <Button onClick={handleSend}>
-            <Send className="h-4 w-4 mr-2" />
-            Enviar
-          </Button>
+          {budgetData.status === 'draft' && (
+            <Button onClick={handleSend}>
+              <Send className="h-4 w-4 mr-2" />
+              Enviar
+            </Button>
+          )}
+          {budgetData.status === 'sent' && (
+            <Button onClick={handleApprove}>
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Aprovar Orçamento
+            </Button>
+          )}
+          {budgetData.status === 'approved' && (
+            <Button onClick={handleGenerateServiceOrder}>
+              <Wrench className="h-4 w-4 mr-2" />
+              Gerar Ordem de Serviço
+            </Button>
+          )}
         </div>
       </div>
 
@@ -253,7 +330,7 @@ const BudgetDetail = () => {
                           ) : (
                             <div>
                               <div>{item.description}</div>
-                              <div className="text-xs text-gray-500">{item.serviceType}</div>
+                              <div className="text-xs text-gray-500">{item.service_type}</div>
                             </div>
                           )}
                         </td>
@@ -273,16 +350,16 @@ const BudgetDetail = () => {
                           {isEditing ? (
                             <Input
                               type="number"
-                              value={item.unitValue}
-                              onChange={(e) => handleItemChange(item.id, 'unitValue', e.target.value)}
+                              value={item.unit_value}
+                              onChange={(e) => handleItemChange(item.id, 'unit_value', e.target.value)}
                               className="w-24 ml-auto text-right"
                             />
                           ) : (
-                            `R$ ${item.unitValue.toLocaleString('pt-BR')}`
+                            `R$ ${item.unit_value.toLocaleString('pt-BR')}`
                           )}
                         </td>
                         <td className="py-3 text-right font-medium">
-                          R$ {item.totalValue.toLocaleString('pt-BR')}
+                          R$ {item.total_value.toLocaleString('pt-BR')}
                         </td>
                         {isEditing && (
                           <td className="py-3 text-center">

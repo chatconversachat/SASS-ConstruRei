@@ -5,14 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Calendar, User, Camera, Video } from 'lucide-react';
 import { Visit } from '@/types';
+import { useNavigate } from 'react-router-dom'; // Importar useNavigate
 
 const Visits = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate(); // Inicializar useNavigate
   
   // Dados mockados para demonstração
   const mockVisits: Visit[] = [
     {
       id: '1',
+      visit_number: '0001-23', // Adicionado
       lead_id: '1',
       scheduled_date: new Date().toISOString(),
       technician_id: 'Tech1',
@@ -25,6 +28,7 @@ const Visits = () => {
     },
     {
       id: '2',
+      visit_number: '0002-23', // Adicionado
       lead_id: '2',
       scheduled_date: new Date(Date.now() + 86400000).toISOString(), // +1 dia
       technician_id: 'Tech2',
@@ -37,6 +41,7 @@ const Visits = () => {
     },
     {
       id: '3',
+      visit_number: '0003-23', // Adicionado
       lead_id: '3',
       scheduled_date: new Date(Date.now() - 86400000).toISOString(), // -1 dia
       technician_id: 'Tech1',
@@ -95,7 +100,7 @@ const Visits = () => {
           <Card key={visit.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">Visita #{visit.id}</CardTitle>
+                <CardTitle className="text-lg">Visita #{visit.visit_number}</CardTitle> {/* Exibir visit_number */}
                 <Badge className={getStatusColor(visit.status)}>
                   {getStatusText(visit.status)}
                 </Badge>
@@ -133,7 +138,12 @@ const Visits = () => {
               </div>
               
               <div className="flex space-x-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => navigate(`/visits/${visit.id}`)} // Navegar para detalhes
+                >
                   Visualizar
                 </Button>
                 <Button size="sm" className="flex-1">
