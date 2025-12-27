@@ -22,7 +22,9 @@ import Settings from "@/pages/Settings";
 import BudgetDetail from "@/pages/BudgetDetail";
 import VisitDetail from "@/pages/VisitDetail";
 import ServiceOrderDetail from "@/pages/ServiceOrderDetail";
-import Scheduling from "@/pages/Scheduling"; // Importar a nova página
+import Scheduling from "@/pages/Scheduling";
+import Automations from "@/pages/Automations"; // Importar a nova página
+import AIAgents from "@/pages/AIAgents"; // Importar a nova página
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -175,12 +177,29 @@ const AppRoutes = () => {
         } 
       />
 
-      {/* Nova rota para Agendamento */}
       <Route 
         path="/scheduling" 
         element={
           <Layout>
             <Scheduling />
+          </Layout>
+        } 
+      />
+
+      {/* Novas rotas para Automações e Agentes de IA */}
+      <Route 
+        path="/automations" 
+        element={
+          <Layout>
+            <Automations />
+          </Layout>
+        } 
+      />
+      <Route 
+        path="/ai-agents" 
+        element={
+          <Layout>
+            <AIAgents />
           </Layout>
         } 
       />

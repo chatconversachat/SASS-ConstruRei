@@ -163,3 +163,28 @@ export interface Appointment {
   notes?: string;
   propertyAddress?: string;
 }
+
+// Novas interfaces para Automações e Agentes de IA
+export interface AutomationRule {
+  id: string;
+  name: string;
+  trigger: string; // Ex: 'lead_created', 'visit_scheduled'
+  condition?: string; // Ex: 'estimated_value > 10000', 'status == "approved"'
+  action: string; // Ex: 'send_email', 'create_service_order'
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AIAgent {
+  id: string;
+  name: string;
+  description: string;
+  prompt: string; // O prompt principal do agente
+  n8n_workflow_id?: string; // ID do fluxo no n8n para integração
+  n8n_webhook_url?: string; // URL do webhook do n8n para acionar o agente
+  type: 'sdr' | 'scheduling' | 'support' | 'service_manager' | 'customer_service' | 'other';
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
+}

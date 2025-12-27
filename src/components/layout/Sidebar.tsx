@@ -14,7 +14,9 @@ import {
   LogOut,
   Wrench,
   FileSpreadsheet,
-  Clock 
+  Clock,
+  Zap, // Ícone para Automações
+  Bot // Ícone para Agentes de IA
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -36,6 +38,8 @@ const Sidebar = () => {
     { name: 'Clientes', icon: Users, path: '/clients' },
     { name: 'Prestadores', icon: ShoppingCart, path: '/providers' },
     { name: 'Leilão de Serviços', icon: ShoppingCart, path: '/auctions' },
+    { name: 'Automações', icon: Zap, path: '/automations' }, {/* Novo item */}
+    { name: 'Agentes de IA', icon: Bot, path: '/ai-agents' }, {/* Novo item */}
     { name: 'Relatórios', icon: BarChart2, path: '/reports' },
     { name: 'Configurações', icon: Settings, path: '/settings' },
   ];
