@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner'; // Importar toast
+import { toast } from 'sonner';
 import { 
   ArrowLeft, 
   Printer, 
@@ -17,17 +17,11 @@ import {
   MapPin,
   Plus,
   Trash2,
-  Wrench, // Novo ícone para Ordem de Serviço
-  CheckCircle // Importar CheckCircle
+  Wrench,
+  CheckCircle 
 } from 'lucide-react';
-import { Budget, ServiceOrder } from '@/types'; // Importar ServiceOrder
-
-// Função para gerar um número de visita/orçamento/OS
-const generateNumber = (prefix: string) => {
-  const year = new Date().getFullYear().toString().slice(-2);
-  const randomNum = Math.floor(1000 + Math.random() * 9000); // 4 dígitos
-  return `${randomNum}-${year}`;
-};
+import { Budget, ServiceOrder } from '@/types';
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
 
 const BudgetDetail = () => {
   const { id } = useParams();
@@ -36,36 +30,49 @@ const BudgetDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   
   // Estados para os dados do orçamento
-  const [budgetData, setBudgetData] = useState<Budget>({
-    id: id || '001',
-    budget_number: id ? `ORC-${id}` : generateNumber('ORC'), // Gerar número se for nova
-    client: 'João Silva', // Mocked client data
-    propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
-    leadSource: 'Indicação',
-    status: 'draft',
-    items: [
-      {
-        id: '1',
-        description: 'Demolição de parede',
-        quantity: 1,
-        unit_value: 800,
-        total_value: 800,
-        service_type: 'Demolição'
-      },
-      {
-        id: '2',
-        description: 'Reforma de cozinha',
-        quantity: 1,
-        unit_value: 12000,
-        total_value: 12000,
-        service_type: 'Reforma'
-      }
-    ],
-    notes: 'Orçamento para reforma completa da cozinha com troca de armários e piso.',
-    validity: '30 dias', // Este campo não está na interface Budget, manter como mock local
-    lead_id: 'lead1', // Mocked lead_id
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+  const [budgetData, setBudgetData] = useState<Budget>(() => {
+    let initialBudget: Budget;
+    if (location.state && (location.state as { newBudget: Budget }).newBudget) {
+      initialBudget = (location.state as { newBudget: Budget }).newBudget;
+    } else {
+      const initialBudgetNumber = id 
+        ? `ORC-${id}` 
+        : `ORC-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.budgetSequence)}`;
+      if (!id) updateSequence('budget'); // Incrementa a sequência apenas se for um novo orçamento
+      
+      initialBudget = {
+        id: id || '001',
+        budget_number: initialBudgetNumber,
+        client: 'João Silva', // Mocked client data
+        propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
+        leadSource: 'Indicação',
+        status: 'draft',
+        items: [
+          {
+            id: '1',
+            description: 'Demolição de parede',
+            quantity: 1,
+            unit_value: 800,
+            total_value: 800,
+            service_type: 'Demolição'
+          },
+          {
+            id: '2',
+            description: 'Reforma de cozinha',
+            quantity: 1,
+            unit_value: 12000,
+            total_value: 12000,
+            service_type: 'Reforma'
+          }
+        ],
+        notes: 'Orçamento para reforma completa da cozinha com troca de armários e piso.',
+        validity: '30 dias', // Este campo não está na interface Budget, manter como mock local
+        lead_id: 'lead1',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    }
+    return initialBudget;
   });
 
   // Efeito para carregar dados de um novo orçamento vindo da página de visitas
@@ -128,14 +135,12 @@ const BudgetDetail = () => {
 
   const handleSave = () => {
     setIsEditing(false);
-    // Lógica de salvamento (em um app real, enviaria para o backend)
     toast.success('Orçamento salvo com sucesso!');
   };
 
   const handleSend = () => {
     setBudgetData(prevData => ({ ...prevData, status: 'sent', sent_at: new Date().toISOString() }));
     toast.success('Orçamento enviado com sucesso!');
-    // Lógica de envio (em um app real, enviaria para o backend)
   };
 
   const handleApprove = () => {
@@ -149,14 +154,13 @@ const BudgetDetail = () => {
       return;
     }
 
-    // Simular a criação de uma Ordem de Serviço
     const newServiceOrderId = Date.now().toString();
     const newServiceOrder: ServiceOrder = {
       id: newServiceOrderId,
-      service_order_number: budgetData.budget_number, // Mantém o mesmo número
+      service_order_number: budgetData.budget_number.replace('ORC-', 'OS-'), // Mantém o mesmo número, muda o prefixo
       budget_id: budgetData.id,
-      client_id: budgetData.lead_id, // Usando lead_id como client_id mockado
-      technician_id: 'Tech1', // Mocked technician
+      client_id: budgetData.lead_id,
+      technician_id: 'Tech1',
       status: 'issued',
       start_date: new Date().toISOString(),
       notes: budgetData.notes,
@@ -164,11 +168,10 @@ const BudgetDetail = () => {
       updated_at: new Date().toISOString(),
     };
 
-    // Em um aplicativo real, você enviaria `newServiceOrder` para o backend
-    // e então navegaria para a página de detalhes da OS recém-criada.
     console.log('Ordem de Serviço gerada:', newServiceOrder);
     toast.success(`Ordem de Serviço ${newServiceOrder.service_order_number} gerada com sucesso!`);
-    navigate(`/service-orders/${newServiceOrderId}`, { state: { newServiceOrder } }); // Passa a nova OS via state
+    updateSequence('serviceOrder'); // Incrementa a sequência da OS
+    navigate(`/service-orders/${newServiceOrderId}`, { state: { newServiceOrder } });
   };
 
   const getStatusColor = (status: string) => {

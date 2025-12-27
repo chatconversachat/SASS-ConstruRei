@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, Users, Bell, Database, Shield } from 'lucide-react';
+import { Save, Users, Bell, Database, Shield, Hash } from 'lucide-react'; // Importar Hash
+import { appNumberConfig } from '@/utils/numberGenerator'; // Importar a configuração
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('general');
@@ -19,10 +20,15 @@ const Settings = () => {
   const [whatsappNotifications, setWhatsappNotifications] = useState(true);
   const [autoBackup, setAutoBackup] = useState(true);
   const [backupFrequency, setBackupFrequency] = useState('daily');
+  // Novo estado para o prefixo do número sequencial
+  const [numberPrefix, setNumberPrefix] = useState(appNumberConfig.prefix); 
   
   const handleSave = () => {
     // Lógica de salvamento
     console.log('Configurações salvas');
+    // Em um app real, você enviaria isso para o backend
+    appNumberConfig.prefix = numberPrefix; // Atualiza a configuração global (simulada)
+    toast.success('Configurações salvas com sucesso!');
   };
 
   return (
@@ -77,6 +83,22 @@ const Settings = () => {
                     onChange={(e) => setCompanyEmail(e.target.value)}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="numberPrefix" className="flex items-center">
+                  <Hash className="h-4 w-4 mr-2 text-gray-500" />
+                  Prefixo de Numeração (Visitas/Orçamentos/OS)
+                </Label>
+                <Input
+                  id="numberPrefix"
+                  value={numberPrefix}
+                  onChange={(e) => setNumberPrefix(e.target.value)}
+                  placeholder="Ex: 0000"
+                />
+                <p className="text-xs text-gray-500">
+                  Define o formato inicial dos números de identificação (ex: 0001-25).
+                </p>
               </div>
               
               <div className="flex items-center justify-between">

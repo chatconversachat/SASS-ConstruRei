@@ -5,17 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Calendar, User, AlertCircle } from 'lucide-react';
 import { ServiceOrder } from '@/types';
-import { useNavigate } from 'react-router-dom'; // Importar useNavigate
+import { useNavigate } from 'react-router-dom';
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
 
 const ServiceOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate(); // Inicializar useNavigate
+  const navigate = useNavigate();
   
   // Dados mockados para demonstração
-  const mockServiceOrders: ServiceOrder[] = [
+  const [mockServiceOrders, setMockServiceOrders] = useState<ServiceOrder[]>([
     {
       id: '1',
-      service_order_number: '0001-23', // Adicionado
+      service_order_number: 'OS-0001-23',
       budget_id: '1',
       client_id: '1',
       technician_id: 'Tech1',
@@ -26,50 +27,69 @@ const ServiceOrders = () => {
     },
     {
       id: '2',
-      service_order_number: '0002-23', // Adicionado
+      service_order_number: 'OS-0002-23',
       budget_id: '2',
       client_id: '2',
       technician_id: 'Tech2',
       status: 'scheduled',
-      start_date: new Date(Date.now() + 86400000).toISOString(), // +1 dia
+      start_date: new Date(Date.now() + 86400000).toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     },
     {
       id: '3',
-      service_order_number: '0003-23', // Adicionado
+      service_order_number: 'OS-0003-23',
       budget_id: '3',
       client_id: '1',
       technician_id: 'Tech1',
       status: 'in_progress',
-      start_date: new Date(Date.now() - 86400000).toISOString(), // -1 dia
+      start_date: new Date(Date.now() - 86400000).toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     },
     {
       id: '4',
-      service_order_number: '0004-23', // Adicionado
+      service_order_number: 'OS-0004-23',
       budget_id: '4',
       client_id: '3',
       technician_id: 'Tech3',
       status: 'waiting_material',
-      start_date: new Date(Date.now() - 172800000).toISOString(), // -2 dias
+      start_date: new Date(Date.now() - 172800000).toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     },
     {
       id: '5',
-      service_order_number: '0005-23', // Adicionado
+      service_order_number: 'OS-0005-23',
       budget_id: '5',
       client_id: '2',
       technician_id: 'Tech2',
       status: 'finished',
-      start_date: new Date(Date.now() - 604800000).toISOString(), // -7 dias
-      end_date: new Date(Date.now() - 86400000).toISOString(), // -1 dia
+      start_date: new Date(Date.now() - 604800000).toISOString(),
+      end_date: new Date(Date.now() - 86400000).toISOString(),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
-  ];
+  ]);
+
+  const handleNewServiceOrder = () => {
+    const newId = Date.now().toString();
+    const newServiceOrderNumber = `OS-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.serviceOrderSequence)}`;
+    updateSequence('serviceOrder'); // Incrementa a sequência
+    const newServiceOrder: ServiceOrder = {
+      id: newId,
+      service_order_number: newServiceOrderNumber,
+      budget_id: 'new_budget', // Placeholder
+      client_id: 'new_client', // Placeholder
+      technician_id: 'New Tech', // Placeholder
+      status: 'issued',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    setMockServiceOrders([...mockServiceOrders, newServiceOrder]);
+    navigate(`/service-orders/${newId}`);
+    toast.success(`Nova Ordem de Serviço ${newServiceOrderNumber} criada!`);
+  };
 
   const getStatusColor = (status: ServiceOrder['status']) => {
     switch (status) {
@@ -118,7 +138,7 @@ const ServiceOrders = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Nova OS</Button>
+          <Button onClick={handleNewServiceOrder}>Nova OS</Button>
         </div>
       </div>
 
@@ -127,7 +147,7 @@ const ServiceOrders = () => {
           <Card key={order.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">OS #{order.service_order_number}</CardTitle> {/* Exibir service_order_number */}
+                <CardTitle className="text-lg">OS #{order.service_order_number}</CardTitle>
                 <Badge className={getStatusColor(order.status)}>
                   {getStatusText(order.status)}
                 </Badge>
@@ -161,7 +181,7 @@ const ServiceOrders = () => {
                   variant="outline" 
                   size="sm" 
                   className="flex-1"
-                  onClick={() => navigate(`/service-orders/${order.id}`)} // Navegar para detalhes
+                  onClick={() => navigate(`/service-orders/${order.id}`)}
                 >
                   Visualizar
                 </Button>

@@ -5,17 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, FileText, Calendar, DollarSign, User } from 'lucide-react';
 import { Budget } from '@/types';
-import { useNavigate } from 'react-router-dom'; // Importar useNavigate
+import { useNavigate } from 'react-router-dom';
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
 
 const Budgets = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate(); // Inicializar useNavigate
+  const navigate = useNavigate();
   
   // Dados mockados para demonstração
-  const mockBudgets: Budget[] = [
+  const [mockBudgets, setMockBudgets] = useState<Budget[]>([
     {
       id: '1',
-      budget_number: '0001-23', // Adicionado
+      budget_number: 'ORC-0001-23',
       lead_id: '1',
       items: [
         { id: '1', description: 'Demolição de parede', quantity: 1, unit_value: 800, total_value: 800, service_type: 'Demolição' },
@@ -29,7 +30,7 @@ const Budgets = () => {
     },
     {
       id: '2',
-      budget_number: '0002-23', // Adicionado
+      budget_number: 'ORC-0002-23',
       lead_id: '2',
       items: [
         { id: '1', description: 'Instalação de ar condicionado', quantity: 2, unit_value: 2500, total_value: 5000, service_type: 'Instalação' }
@@ -43,7 +44,7 @@ const Budgets = () => {
     },
     {
       id: '3',
-      budget_number: '0003-23', // Adicionado
+      budget_number: 'ORC-0003-23',
       lead_id: '3',
       items: [
         { id: '1', description: 'Pintura interna', quantity: 1, unit_value: 3500, total_value: 3500, service_type: 'Pintura' },
@@ -54,7 +55,26 @@ const Budgets = () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
-  ];
+  ]);
+
+  const handleNewBudget = () => {
+    const newId = Date.now().toString();
+    const newBudgetNumber = `ORC-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.budgetSequence)}`;
+    updateSequence('budget'); // Incrementa a sequência
+    const newBudget: Budget = {
+      id: newId,
+      budget_number: newBudgetNumber,
+      lead_id: 'new_lead', // Placeholder
+      items: [],
+      total_value: 0,
+      status: 'draft',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    setMockBudgets([...mockBudgets, newBudget]);
+    navigate(`/budgets/${newId}`);
+    toast.success(`Novo orçamento ${newBudgetNumber} criado!`);
+  };
 
   const getStatusColor = (status: Budget['status']) => {
     switch (status) {
@@ -95,7 +115,7 @@ const Budgets = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Novo Orçamento</Button>
+          <Button onClick={handleNewBudget}>Novo Orçamento</Button>
         </div>
       </div>
 
@@ -104,7 +124,7 @@ const Budgets = () => {
           <Card key={budget.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">Orçamento #{budget.budget_number}</CardTitle> {/* Exibir budget_number */}
+                <CardTitle className="text-lg">Orçamento #{budget.budget_number}</CardTitle>
                 <Badge className={getStatusColor(budget.status)}>
                   {getStatusText(budget.status)}
                 </Badge>
@@ -136,7 +156,7 @@ const Budgets = () => {
                   variant="outline" 
                   size="sm" 
                   className="flex-1"
-                  onClick={() => navigate(`/budgets/${budget.id}`)} // Navegar para detalhes
+                  onClick={() => navigate(`/budgets/${budget.id}`)}
                 >
                   Visualizar
                 </Button>

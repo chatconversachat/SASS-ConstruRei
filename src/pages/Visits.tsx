@@ -5,17 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Calendar, User, Camera, Video } from 'lucide-react';
 import { Visit } from '@/types';
-import { useNavigate } from 'react-router-dom'; // Importar useNavigate
+import { useNavigate } from 'react-router-dom';
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
 
 const Visits = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate(); // Inicializar useNavigate
+  const navigate = useNavigate();
   
   // Dados mockados para demonstração
-  const mockVisits: Visit[] = [
+  const [mockVisits, setMockVisits] = useState<Visit[]>([
     {
       id: '1',
-      visit_number: '0001-23', // Adicionado
+      visit_number: 'VIS-0001-23',
       lead_id: '1',
       scheduled_date: new Date().toISOString(),
       technician_id: 'Tech1',
@@ -28,9 +29,9 @@ const Visits = () => {
     },
     {
       id: '2',
-      visit_number: '0002-23', // Adicionado
+      visit_number: 'VIS-0002-23',
       lead_id: '2',
-      scheduled_date: new Date(Date.now() + 86400000).toISOString(), // +1 dia
+      scheduled_date: new Date(Date.now() + 86400000).toISOString(),
       technician_id: 'Tech2',
       status: 'scheduled',
       notes: 'Visita para instalação de ar condicionado',
@@ -41,9 +42,9 @@ const Visits = () => {
     },
     {
       id: '3',
-      visit_number: '0003-23', // Adicionado
+      visit_number: 'VIS-0003-23',
       lead_id: '3',
-      scheduled_date: new Date(Date.now() - 86400000).toISOString(), // -1 dia
+      scheduled_date: new Date(Date.now() - 86400000).toISOString(),
       technician_id: 'Tech1',
       status: 'completed',
       notes: 'Visita realizada com sucesso. Cliente aprovou orçamento.',
@@ -52,7 +53,29 @@ const Visits = () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
-  ];
+  ]);
+
+  const handleNewVisit = () => {
+    const newId = Date.now().toString();
+    const newVisitNumber = `VIS-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence)}`;
+    updateSequence('visit'); // Incrementa a sequência
+    const newVisit: Visit = {
+      id: newId,
+      visit_number: newVisitNumber,
+      lead_id: 'new_lead', // Placeholder
+      scheduled_date: new Date().toISOString(),
+      technician_id: 'New Tech', // Placeholder
+      status: 'scheduled',
+      notes: 'Nova visita agendada',
+      photos: [],
+      videos: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    setMockVisits([...mockVisits, newVisit]);
+    navigate(`/visits/${newId}`);
+    toast.success(`Nova visita ${newVisitNumber} criada!`);
+  };
 
   const getStatusColor = (status: Visit['status']) => {
     switch (status) {
@@ -91,7 +114,7 @@ const Visits = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button>Nova Visita</Button>
+          <Button onClick={handleNewVisit}>Nova Visita</Button>
         </div>
       </div>
 
@@ -100,7 +123,7 @@ const Visits = () => {
           <Card key={visit.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">Visita #{visit.visit_number}</CardTitle> {/* Exibir visit_number */}
+                <CardTitle className="text-lg">Visita #{visit.visit_number}</CardTitle>
                 <Badge className={getStatusColor(visit.status)}>
                   {getStatusText(visit.status)}
                 </Badge>
@@ -142,7 +165,7 @@ const Visits = () => {
                   variant="outline" 
                   size="sm" 
                   className="flex-1"
-                  onClick={() => navigate(`/visits/${visit.id}`)} // Navegar para detalhes
+                  onClick={() => navigate(`/visits/${visit.id}`)}
                 >
                   Visualizar
                 </Button>

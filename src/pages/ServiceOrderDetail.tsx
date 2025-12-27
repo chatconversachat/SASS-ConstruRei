@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input'; // Importar Input para notas de conclusão
-import FileUpload from '@/components/ui/file-upload'; // Importar FileUpload
-import { toast } from 'sonner'; // Importar toast
+import { Input } from '@/components/ui/input';
+import FileUpload from '@/components/ui/file-upload';
+import { toast } from 'sonner';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -20,99 +20,106 @@ import {
   Play,
   Pause,
   Package,
-  Send, // Ícone para disparar OS
-  Camera, // Ícone para fotos de conclusão
-  Video // Ícone para vídeos de conclusão
+  Send,
+  Camera,
+  Video 
 } from 'lucide-react';
-import { ServiceOrder, FinancialEntry } from '@/types'; // Importar FinancialEntry
-
-// Função para gerar um número de visita/orçamento/OS
-const generateNumber = (prefix: string) => {
-  const year = new Date().getFullYear().toString().slice(-2);
-  const randomNum = Math.floor(1000 + Math.random() * 9000); // 4 dígitos
-  return `${randomNum}-${year}`;
-};
+import { ServiceOrder, FinancialEntry } from '@/types';
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
 
 const ServiceOrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
-  const [showCompletionForm, setShowCompletionForm] = useState(false); // Estado para o formulário de conclusão
+  const [showCompletionForm, setShowCompletionForm] = useState(false);
   const [completionNotes, setCompletionNotes] = useState('');
   const [completionPhotos, setCompletionPhotos] = useState<File[]>([]);
   const [completionVideos, setCompletionVideos] = useState<File[]>([]);
   
   // Estados para os dados da ordem de serviço
-  const [orderData, setOrderData] = useState<ServiceOrder>({
-    id: id || '001',
-    service_order_number: id ? `OS-${id}` : generateNumber('OS'), // Gerar número se for nova
-    client: 'João Silva', // Mocked client data
-    propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
-    technician: 'Carlos Silva',
-    startDate: '2023-06-22T08:00:00',
-    endDate: '2023-06-25T18:00:00',
-    status: 'scheduled',
-    notes: 'Reforma completa da cozinha com troca de armários e piso.',
-    budgetId: '123', // Mocked budgetId
-    services: [
-      {
-        id: '1',
-        description: 'Demolição de parede',
-        status: 'completed',
+  const [orderData, setOrderData] = useState<ServiceOrder>(() => {
+    let initialServiceOrder: ServiceOrder;
+    if (location.state && (location.state as { newServiceOrder: ServiceOrder }).newServiceOrder) {
+      initialServiceOrder = (location.state as { newServiceOrder: ServiceOrder }).newServiceOrder;
+    } else {
+      const initialServiceOrderNumber = id 
+        ? `OS-${id}` 
+        : `OS-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.serviceOrderSequence)}`;
+      if (!id) updateSequence('serviceOrder'); // Incrementa a sequência apenas se for uma nova OS
+
+      initialServiceOrder = {
+        id: id || '001',
+        service_order_number: initialServiceOrderNumber,
+        client: 'João Silva', // Mocked client data
+        propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
+        technician: 'Carlos Silva',
         startDate: '2023-06-22T08:00:00',
-        endDate: '2023-06-22T12:00:00'
-      },
-      {
-        id: '2',
-        description: 'Instalação hidráulica',
-        status: 'in_progress',
-        startDate: '2023-06-22T13:00:00',
-        endDate: null
-      },
-      {
-        id: '3',
-        description: 'Instalação elétrica',
-        status: 'pending',
-        startDate: null,
-        endDate: null
-      },
-      {
-        id: '4',
-        description: 'Revestimento de parede',
-        status: 'pending',
-        startDate: null,
-        endDate: null
-      }
-    ],
-    materials: [
-      {
-        id: '1',
-        name: 'Azulejos brancos 30x60',
-        quantity: 20,
-        unit: 'm²',
-        status: 'delivered'
-      },
-      {
-        id: '2',
-        name: 'Piso laminado',
-        quantity: 15,
-        unit: 'm²',
-        status: 'ordered'
-      },
-      {
-        id: '3',
-        name: 'Torneira monocomando',
-        quantity: 2,
-        unit: 'un',
-        status: 'pending'
-      }
-    ],
-    budget_id: 'budget1', // Mocked budget_id
-    client_id: 'client1', // Mocked client_id
-    technician_id: 'tech1', // Mocked technician_id
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+        endDate: '2023-06-25T18:00:00',
+        status: 'scheduled',
+        notes: 'Reforma completa da cozinha com troca de armários e piso.',
+        budgetId: '123', // Mocked budgetId
+        services: [
+          {
+            id: '1',
+            description: 'Demolição de parede',
+            status: 'completed',
+            startDate: '2023-06-22T08:00:00',
+            endDate: '2023-06-22T12:00:00'
+          },
+          {
+            id: '2',
+            description: 'Instalação hidráulica',
+            status: 'in_progress',
+            startDate: '2023-06-22T13:00:00',
+            endDate: null
+          },
+          {
+            id: '3',
+            description: 'Instalação elétrica',
+            status: 'pending',
+            startDate: null,
+            endDate: null
+          },
+          {
+            id: '4',
+            description: 'Revestimento de parede',
+            status: 'pending',
+            startDate: null,
+            endDate: null
+          }
+        ],
+        materials: [
+          {
+            id: '1',
+            name: 'Azulejos brancos 30x60',
+            quantity: 20,
+            unit: 'm²',
+            status: 'delivered'
+          },
+          {
+            id: '2',
+            name: 'Piso laminado',
+            quantity: 15,
+            unit: 'm²',
+            status: 'ordered'
+          },
+          {
+            id: '3',
+            name: 'Torneira monocomando',
+            quantity: 2,
+            unit: 'un',
+            status: 'pending'
+          }
+        ],
+        budget_id: 'budget1',
+        client_id: 'client1',
+        technician_id: 'tech1',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    }
+    return initialServiceOrder;
   });
 
   // Efeito para carregar dados de uma nova OS vindo da página de orçamentos
@@ -128,7 +135,6 @@ const ServiceOrderDetail = () => {
 
   const handleSave = () => {
     setIsEditing(false);
-    // Lógica de salvamento (em um app real, enviaria para o backend)
     toast.success('Ordem de Serviço salva com sucesso!');
   };
 
@@ -138,7 +144,6 @@ const ServiceOrderDetail = () => {
       status: 'in_progress'
     });
     toast.success('Serviço iniciado!');
-    // Lógica para iniciar serviço
   };
 
   const handlePauseService = () => {
@@ -147,16 +152,14 @@ const ServiceOrderDetail = () => {
       status: 'scheduled'
     });
     toast.info('Serviço pausado.');
-    // Lógica para pausar serviço
   };
 
   const handleDispatchServiceOrder = () => {
-    toast.success(`Ordem de Serviço ${orderData.service_order_number} disparada para o prestador ${orderData.technician}!`);
-    // Em um app real, aqui seria a lógica para enviar e-mail/WhatsApp
+    toast.success(`Ordem de Serviço ${orderData.service_order_number} disparada para o prestador ${orderData.technician}! (Simulado)`);
   };
 
   const handleCompleteService = () => {
-    setShowCompletionForm(true); // Abre o formulário de conclusão
+    setShowCompletionForm(true);
   };
 
   const submitCompletion = () => {
@@ -171,23 +174,21 @@ const ServiceOrderDetail = () => {
     setShowCompletionForm(false);
     toast.success('Ordem de Serviço finalizada com sucesso!');
 
-    // Lógica para criar uma entrada financeira (conta a receber)
     const financialEntry: FinancialEntry = {
       id: Date.now().toString(),
       service_order_id: orderData.id,
       related_number: orderData.service_order_number,
       description: `Recebimento OS #${orderData.service_order_number}`,
-      value: 10500, // Valor mockado, idealmente viria do orçamento
+      value: 10500,
       type: 'income',
       status: 'pending',
-      due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Vencimento em 7 dias
-      category_id: 'cat-income-services', // Categoria mockada
+      due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      category_id: 'cat-income-services',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
     console.log('Entrada financeira gerada:', financialEntry);
-    toast.info('Entrada financeira gerada para esta OS.');
-    // Em um app real, você enviaria `financialEntry` para o backend
+    toast.info('Entrada financeira gerada para esta OS. (Simulado)');
   };
 
   const handleCompletionPhotosAdded = (newPhotos: File[]) => {

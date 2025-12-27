@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import FileUpload from '@/components/ui/file-upload';
 import SignaturePad from '@/components/ui/signature-pad';
-import { toast } from 'sonner'; // Importar toast
+import { toast } from 'sonner';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -20,16 +20,10 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  DollarSign // Novo ícone para orçamento
+  DollarSign 
 } from 'lucide-react';
-import { Visit, Budget } from '@/types'; // Importar Budget
-
-// Função para gerar um número de visita/orçamento/OS
-const generateNumber = (prefix: string) => {
-  const year = new Date().getFullYear().toString().slice(-2);
-  const randomNum = Math.floor(1000 + Math.random() * 9000); // 4 dígitos
-  return `${randomNum}-${year}`;
-};
+import { Visit, Budget } from '@/types';
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator'; // Importar utilitário
 
 const VisitDetail = () => {
   const { id } = useParams();
@@ -41,35 +35,41 @@ const VisitDetail = () => {
   const [signature, setSignature] = useState<string | null>(null);
   
   // Dados mockados para a visita (simulando busca por ID)
-  const [visitData, setVisitData] = useState<Visit>({
-    id: id || '001',
-    visit_number: id ? `VIS-${id}` : generateNumber('VIS'), // Gerar número se for nova
-    client: 'João Silva', // Mocked client data
-    propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
-    technician: 'Carlos Silva',
-    scheduledDate: '2023-06-20T10:00:00',
-    status: 'scheduled',
-    notes: 'Visita para avaliação de reforma de cozinha. Cliente relatou problemas com azulejos e piso.',
-    findings: [
-      'Azulejos da cozinha com rachaduras',
-      'Piso com desníveis',
-      'Torneira com vazamento'
-    ],
-    recommendations: [
-      'Substituição completa dos azulejos',
-      'Nivelamento do piso',
-      'Troca da torneira'
-    ],
-    photos: [], // Usaremos o estado 'photos' para os arquivos
-    videos: [], // Usaremos o estado 'videos' para os arquivos
-    lead_id: 'lead1', // Mocked lead_id
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+  const [visitData, setVisitData] = useState<Visit>(() => {
+    const initialVisitNumber = id 
+      ? `VIS-${id}` 
+      : `VIS-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence)}`;
+    if (!id) updateSequence('visit'); // Incrementa a sequência apenas se for uma nova visita
+    
+    return {
+      id: id || '001',
+      visit_number: initialVisitNumber,
+      client: 'João Silva', // Mocked client data
+      propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
+      technician: 'Carlos Silva',
+      scheduledDate: '2023-06-20T10:00:00',
+      status: 'scheduled',
+      notes: 'Visita para avaliação de reforma de cozinha. Cliente relatou problemas com azulejos e piso.',
+      findings: [
+        'Azulejos da cozinha com rachaduras',
+        'Piso com desníveis',
+        'Torneira com vazamento'
+      ],
+      recommendations: [
+        'Substituição completa dos azulejos',
+        'Nivelamento do piso',
+        'Troca da torneira'
+      ],
+      photos: [],
+      videos: [],
+      lead_id: 'lead1',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
   });
 
   const handleSave = () => {
     setIsEditing(false);
-    // Lógica de salvamento (em um app real, enviaria para o backend)
     toast.success('Visita salva com sucesso!');
   };
 
@@ -77,11 +77,10 @@ const VisitDetail = () => {
     setVisitData({
       ...visitData,
       status: 'completed',
-      photos: photos.map(f => f.name), // Salvar nomes dos arquivos mockados
-      videos: videos.map(f => f.name), // Salvar nomes dos arquivos mockados
+      photos: photos.map(f => f.name),
+      videos: videos.map(f => f.name),
     });
     toast.success('Visita finalizada com sucesso!');
-    // Lógica para completar visita (em um app real, enviaria para o backend)
   };
 
   const handleCancelVisit = () => {
@@ -90,7 +89,6 @@ const VisitDetail = () => {
       status: 'cancelled'
     });
     toast.info('Visita cancelada.');
-    // Lógica para cancelar visita (em um app real, enviaria para o backend)
   };
 
   const handlePhotosAdded = (newPhotos: File[]) => {
@@ -116,7 +114,7 @@ const VisitDetail = () => {
   };
 
   const handleSignatureCancel = () => {
-    setSignature(null); // Clear signature if cancelled
+    setSignature(null);
     setShowSignaturePad(false);
     toast.info('Assinatura cancelada.');
   };
@@ -131,11 +129,10 @@ const VisitDetail = () => {
       return;
     }
 
-    // Simular a criação de um orçamento
     const newBudgetId = Date.now().toString();
     const newBudget: Budget = {
       id: newBudgetId,
-      budget_number: visitData.visit_number, // Mantém o mesmo número
+      budget_number: visitData.visit_number.replace('VIS-', 'ORC-'), // Mantém o mesmo número, muda o prefixo
       lead_id: visitData.lead_id,
       visit_id: visitData.id,
       items: [
@@ -148,11 +145,10 @@ const VisitDetail = () => {
       updated_at: new Date().toISOString(),
     };
 
-    // Em um aplicativo real, você enviaria `newBudget` para o backend
-    // e então navegaria para a página de detalhes do orçamento recém-criado.
     console.log('Orçamento gerado:', newBudget);
     toast.success(`Orçamento ${newBudget.budget_number} gerado com sucesso!`);
-    navigate(`/budgets/${newBudgetId}`, { state: { newBudget } }); // Passa o novo orçamento via state
+    updateSequence('budget'); // Incrementa a sequência do orçamento
+    navigate(`/budgets/${newBudgetId}`, { state: { newBudget } });
   };
 
   const getStatusColor = (status: string) => {
