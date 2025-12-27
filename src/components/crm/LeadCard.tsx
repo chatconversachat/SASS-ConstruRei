@@ -2,14 +2,14 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Phone, Mail, MapPin, Calendar, User } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, User, DollarSign } from 'lucide-react';
 import { Lead, Client } from '@/types';
 
 interface LeadCardProps {
   lead: Lead;
   client: Client;
-  onEdit: (lead: Lead) => void;
-  onView: (lead: Lead) => void;
+  onEdit: (lead: Lead, client: Client) => void;
+  onView: (lead: Lead, client: Client) => void;
 }
 
 const LeadCard: React.FC<LeadCardProps> = ({ lead, client, onEdit, onView }) => {
@@ -63,7 +63,7 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, client, onEdit, onView }) => 
           </div>
           
           <div className="flex items-center text-sm text-gray-600">
-            <Calendar className="h-4 w-4 mr-2" />
+            <DollarSign className="h-4 w-4 mr-2" />
             <span>Valor estimado: R$ {lead.estimated_value?.toLocaleString('pt-BR')}</span>
           </div>
         </div>
@@ -73,7 +73,7 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, client, onEdit, onView }) => 
             variant="outline" 
             size="sm" 
             className="flex-1"
-            onClick={() => onView(lead)}
+            onClick={() => onView(lead, client)}
           >
             Visualizar
           </Button>
@@ -81,7 +81,7 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, client, onEdit, onView }) => 
             variant="default" 
             size="sm" 
             className="flex-1"
-            onClick={() => onEdit(lead)}
+            onClick={() => onEdit(lead, client)}
           >
             Editar
           </Button>

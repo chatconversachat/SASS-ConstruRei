@@ -19,8 +19,8 @@ interface KanbanColumnProps {
   status: Lead['status'];
   leads: Lead[];
   clients: Client[];
-  onEdit: (lead: Lead) => void;
-  onView: (lead: Lead) => void;
+  onEdit: (lead: Lead, client: Client) => void;
+  onView: (lead: Lead, client: Client) => void;
   onCreate: (status: Lead['status']) => void;
 }
 
@@ -35,6 +35,9 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
 }) => {
   const [items, setItems] = useState(leads);
 
+  // Note: DndContext and SortableContext are for drag-and-drop reordering within a column.
+  // For cross-column drag-and-drop (changing status), more complex logic would be needed
+  // involving updating the lead's status in the parent CRM component.
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
@@ -48,7 +51,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
   };
 
   return (
-    <Card className="flex-1">
+    <Card className="flex-1 min-w-[300px] max-w-[350px]">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg">{title}</CardTitle>
@@ -71,7 +74,14 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
           <SortableContext items={items.map(item => item.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-3">
               {items.map((lead) => {
-                const client = clients.find(c => c.id === lead.client_id) || {} as Client;
+                const client = clients.find(c => c.id === lead.client_id) || {
+                  id: 'unknown',
+                  name: 'Cliente Desconhecido',
+                  email: '',
+                  phone: '',
+                  type: 'individual',
+                  created_at: ''
+                } as Client; // Fallback client
                 return (
                   <LeadCard 
                     key={lead.id} 
