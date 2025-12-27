@@ -3,9 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+// import { AuthProvider, useAuth } from "@/context/AuthContext"; // Removido
 import Layout from "@/components/layout/Layout";
-import Login from "@/pages/Login";
+// import Login from "@/pages/Login"; // Removido
 import Dashboard from "@/pages/Dashboard";
 import CRM from "@/pages/CRM";
 import ServiceOrders from "@/pages/ServiceOrders";
@@ -26,61 +26,14 @@ import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Componente protegido para rotas que requerem autenticação
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, loading } = useAuth();
-  
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return <Layout>{children}</Layout>;
-};
-
-// Componente para rotas públicas
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, loading } = useAuth();
-  
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-  
-  if (isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-  
-  return children;
-};
-
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route 
-        path="/login" 
-        element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        } 
-      />
-      
-      {/* Dashboard agora é uma rota pública para que não seja a primeira página de login */}
+      {/* Todas as rotas agora são públicas e usam o Layout */}
       <Route 
         path="/" 
         element={
-          <Layout> {/* Mantém o layout para o Dashboard */}
+          <Layout>
             <Dashboard />
           </Layout>
         } 
@@ -89,135 +42,135 @@ const AppRoutes = () => {
       <Route 
         path="/crm" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <CRM />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/visits" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Visits />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/visits/:id" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <VisitDetail />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/budgets" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Budgets />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/budgets/:id" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <BudgetDetail />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/service-orders" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <ServiceOrders />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/service-orders/:id" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <ServiceOrderDetail />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/execution" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Execution />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/financial" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Financial />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/fiscal" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Fiscal />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/clients" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Clients />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/providers" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Providers />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/auctions" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Auctions />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/reports" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Reports />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
       <Route 
         path="/settings" 
         element={
-          <ProtectedRoute>
+          <Layout>
             <Settings />
-          </ProtectedRoute>
+          </Layout>
         } 
       />
       
@@ -229,7 +182,7 @@ const AppRoutes = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+    {/* <AuthProvider> Removido */}
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -237,7 +190,7 @@ const App = () => (
           <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
-    </AuthProvider>
+    {/* </AuthProvider> Removido */}
   </QueryClientProvider>
 );
 

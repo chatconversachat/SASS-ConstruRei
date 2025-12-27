@@ -15,13 +15,13 @@ import {
   Wrench,
   FileSpreadsheet
 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+// import { useAuth } from '@/context/AuthContext'; // Removido
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const Sidebar = () => {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth(); // Removido
 
   const menuItems = [
     { name: 'Dashboard', icon: Home, path: '/' },
@@ -71,12 +71,9 @@ const Sidebar = () => {
         <div className="flex items-center mb-4">
           <div className="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10" />
           <div className="ml-3">
-            <p className="text-sm font-medium truncate">{user?.name}</p>
+            <p className="text-sm font-medium truncate">Usuário</p> {/* Placeholder */}
             <p className="text-xs text-gray-400 capitalize">
-              {user?.role === 'owner' && 'Dono'}
-              {user?.role === 'admin' && 'Administrativo'}
-              {user?.role === 'technician' && 'Técnico'}
-              {user?.role === 'client' && 'Cliente'}
+              Administrador {/* Placeholder */}
             </p>
           </div>
         </div>
@@ -84,7 +81,7 @@ const Sidebar = () => {
         <Button 
           variant="outline" 
           className="w-full justify-start text-white border-gray-700 hover:bg-gray-800"
-          onClick={() => logout()}
+          // onClick={() => logout()} // Removido
         >
           <LogOut className="h-4 w-4 mr-2" />
           Sair
