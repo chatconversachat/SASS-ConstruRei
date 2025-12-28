@@ -7,7 +7,7 @@ import { Search, FileText, Calendar, DollarSign, User } from 'lucide-react';
 import { Budget } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
-import { toast } from 'sonner'; // Importar toast
+import { toast } from 'sonner';
 
 const Budgets = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,7 +17,7 @@ const Budgets = () => {
   const [mockBudgets, setMockBudgets] = useState<Budget[]>([
     {
       id: '1',
-      budget_number: 'ORC-0001-23',
+      budget_number: '0001-23',
       lead_id: '1',
       items: [
         { id: '1', description: 'Demolição de parede', quantity: 1, unit_value: 800, total_value: 800, service_type: 'Demolição' },
@@ -31,7 +31,7 @@ const Budgets = () => {
     },
     {
       id: '2',
-      budget_number: 'ORC-0002-23',
+      budget_number: '0002-23',
       lead_id: '2',
       items: [
         { id: '1', description: 'Instalação de ar condicionado', quantity: 2, unit_value: 2500, total_value: 5000, service_type: 'Instalação' }
@@ -42,30 +42,17 @@ const Budgets = () => {
       updated_at: new Date().toISOString(),
       sent_at: new Date().toISOString(),
       approved_at: new Date().toISOString()
-    },
-    {
-      id: '3',
-      budget_number: 'ORC-0003-23',
-      lead_id: '3',
-      items: [
-        { id: '1', description: 'Pintura interna', quantity: 1, unit_value: 3500, total_value: 3500, service_type: 'Pintura' },
-        { id: '2', description: 'Troca de pisos', quantity: 1, unit_value: 8000, total_value: 8000, service_type: 'Pavimentação' }
-      ],
-      total_value: 11500,
-      status: 'draft',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
     }
   ]);
 
   const handleNewBudget = () => {
     const newId = Date.now().toString();
-    const newBudgetNumber = `ORC-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.budgetSequence)}`;
-    updateSequence('budget'); // Incrementa a sequência
+    const newBudgetNumber = generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.budgetSequence);
+    updateSequence('budget');
     const newBudget: Budget = {
       id: newId,
       budget_number: newBudgetNumber,
-      lead_id: 'new_lead', // Placeholder
+      lead_id: 'new_lead',
       items: [],
       total_value: 0,
       status: 'draft',

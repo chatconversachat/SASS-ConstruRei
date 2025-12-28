@@ -63,10 +63,9 @@ const Scheduling = () => {
   const handleSaveAppointment = (newApp: Appointment) => {
     let updatedApp = { ...newApp };
 
-    // Lógica Especialista: Se for visita técnica, cria o registro operacional automaticamente
     if (newApp.type === 'visit') {
       const visitId = `vis-${Date.now()}`;
-      const visitNumber = `VIS-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence)}`;
+      const visitNumber = generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence);
       updateSequence('visit');
 
       const newVisit: Visit = {
@@ -90,7 +89,6 @@ const Scheduling = () => {
       };
 
       updatedApp.visit_id = visitId;
-      console.log('Visita Técnica criada automaticamente:', newVisit);
       toast.info(`Registro de Visita ${visitNumber} gerado automaticamente.`);
     }
 
@@ -101,8 +99,7 @@ const Scheduling = () => {
 
   const handleViewAppointmentDetails = (app: Appointment) => {
     if (app.type === 'visit' && app.visit_id) {
-      toast.info(`Redirecionando para detalhes da Visita Técnica vinculada...`);
-      // Em uma navegação real: navigate(`/visits/${app.visit_id}`);
+      toast.info(`Visualizando detalhes da Visita vinculada...`);
     } else {
       toast.info(`Visualizando detalhes do agendamento: ${app.id}`);
     }

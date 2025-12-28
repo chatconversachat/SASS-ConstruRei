@@ -17,7 +17,7 @@ const Visits = () => {
   const [mockVisits, setMockVisits] = useState<Visit[]>([
     {
       id: '1',
-      visit_number: 'VIS-0001-23',
+      visit_number: '0001-23',
       lead_id: '1',
       scheduled_date: new Date().toISOString(),
       technician_id: 'Tech1',
@@ -32,7 +32,7 @@ const Visits = () => {
     },
     {
       id: '2',
-      visit_number: 'VIS-0002-23',
+      visit_number: '0002-23',
       lead_id: '2',
       scheduled_date: new Date(Date.now() + 86400000).toISOString(),
       technician_id: 'Tech2',
@@ -47,7 +47,7 @@ const Visits = () => {
     },
     {
       id: '3',
-      visit_number: 'VIS-0003-23',
+      visit_number: '0003-23',
       lead_id: '3',
       scheduled_date: new Date(Date.now() - 86400000).toISOString(),
       technician_id: 'Tech1',
@@ -64,7 +64,7 @@ const Visits = () => {
 
   const handleNewVisit = () => {
     const newId = Date.now().toString();
-    const newVisitNumber = `VIS-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence)}`;
+    const newVisitNumber = generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence);
     updateSequence('visit');
     const newVisit: Visit = {
       id: newId,
