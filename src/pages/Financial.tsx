@@ -11,13 +11,13 @@ import { FinancialEntry } from '@/types';
 const Financial = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Dados mockados para demonstração
+  // Dados mockados com o DNA (Related Number)
   const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>([
-    { id: '1', description: 'Pagamento OS #123', value: 5000, type: 'income', status: 'paid', due_date: '2023-06-15', payment_date: '2023-06-15', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-123' },
-    { id: '2', description: 'Material para reforma', value: 2500, type: 'expense', status: 'paid', due_date: '2023-06-10', payment_date: '2023-06-10', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-123' },
-    { id: '3', description: 'Pagamento técnico', value: 1200, type: 'expense', status: 'paid', due_date: '2023-06-05', payment_date: '2023-06-05', category_id: 'cat3', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-124' },
-    { id: '4', description: 'OS #124', value: 3500, type: 'income', status: 'pending', due_date: '2023-06-20', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-124' },
-    { id: '5', description: 'Equipamentos', value: 8000, type: 'expense', status: 'pending', due_date: '2023-06-25', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-125' },
+    { id: '1', description: 'Pagamento OS #0001-23', value: 5000, type: 'income', status: 'paid', due_date: '2023-06-15', payment_date: '2023-06-15', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0001-23' },
+    { id: '2', description: 'Material para reforma', value: 2500, type: 'expense', status: 'paid', due_date: '2023-06-10', payment_date: '2023-06-10', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0001-23' },
+    { id: '3', description: 'Pagamento técnico', value: 1200, type: 'expense', status: 'paid', due_date: '2023-06-05', payment_date: '2023-06-05', category_id: 'cat3', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0002-23' },
+    { id: '4', description: 'OS #0002-23', value: 3500, type: 'income', status: 'pending', due_date: '2023-06-20', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0002-23' },
+    { id: '5', description: 'Equipamentos', value: 8000, type: 'expense', status: 'pending', due_date: '2023-06-25', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0003-23' },
   ]);
 
   const revenueData = [
@@ -59,32 +59,34 @@ const Financial = () => {
   };
 
   const handleAddEntry = () => {
-    toast.info('Funcionalidade de adicionar lançamento em desenvolvimento.');
+    toast.info('Funcionalidade de adicionar lançamento com vínculo de DNA em desenvolvimento.');
   };
 
   const handleEditEntry = (entryId: string) => {
-    toast.info(`Funcionalidade de editar lançamento ${entryId} em desenvolvimento.`);
+    toast.info(`Editando lançamento ${entryId}.`);
   };
 
   const handleDeleteEntry = (entryId: string) => {
     setFinancialEntries(financialEntries.filter(entry => entry.id !== entryId));
-    toast.success('Lançamento excluído com sucesso!');
+    toast.success('Lançamento excluído.');
   };
 
   const handleIssueInvoice = (entryId?: string) => {
-    if (entryId) {
-      toast.success(`Nota fiscal emitida e enviada para o lançamento ${entryId}! (Simulado)`);
-    } else {
-      toast.success('Nota fiscal geral emitida e enviada para o cliente! (Simulado)');
-    }
+    toast.success(`Nota fiscal processada para o registro.`);
   };
+
+  // Filtragem básica por DNA ou descrição
+  const filteredEntries = financialEntries.filter(entry => 
+    entry.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (entry.related_number && entry.related_number.includes(searchTerm))
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Financeiro</h1>
-          <p className="text-gray-600">Gestão financeira completa</p>
+          <p className="text-gray-600">Gestão financeira por serviço/obra (DNA)</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2">
@@ -92,7 +94,7 @@ const Financial = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input 
               type="text" 
-              placeholder="Buscar lançamentos..." 
+              placeholder="Buscar por DNA (ex: 0001-23)..." 
               className="pl-10 w-full" 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -113,7 +115,6 @@ const Financial = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">R$ 15.000</div>
-            <p className="text-xs text-muted-foreground">+12% em relação ao mês anterior</p>
           </CardContent>
         </Card>
         
@@ -124,7 +125,6 @@ const Financial = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">R$ 12.000</div>
-            <p className="text-xs text-muted-foreground">+5% em relação ao mês anterior</p>
           </CardContent>
         </Card>
         
@@ -135,69 +135,21 @@ const Financial = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">R$ 3.000</div>
-            <p className="text-xs text-muted-foreground">+22% em relação ao mês anterior</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Fluxo de Caixa</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="receita" fill="#10B981" name="Receita" />
-                <Bar dataKey="despesa" fill="#EF4444" name="Despesa" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Entradas vs Saídas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={cashFlowData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                >
-                  {cashFlowData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Lançamentos Financeiros</CardTitle>
+          <CardTitle>Lançamentos Financeiros (DNA do Serviço)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
+                  <th className="text-left py-2">DNA do Serviço</th>
                   <th className="text-left py-2">Descrição</th>
-                  <th className="text-left py-2">Número Relacionado</th>
                   <th className="text-left py-2">Valor</th>
                   <th className="text-left py-2">Tipo</th>
                   <th className="text-left py-2">Vencimento</th>
@@ -206,10 +158,14 @@ const Financial = () => {
                 </tr>
               </thead>
               <tbody>
-                {financialEntries.map((entry) => (
-                  <tr key={entry.id} className="border-b">
+                {filteredEntries.map((entry) => (
+                  <tr key={entry.id} className="border-b hover:bg-slate-50 transition-colors">
+                    <td className="py-3">
+                      <Badge variant="outline" className="font-mono bg-blue-50 text-blue-700 border-blue-200">
+                        {entry.related_number || 'S/ DNA'}
+                      </Badge>
+                    </td>
                     <td className="py-3">{entry.description}</td>
-                    <td className="py-3 text-sm text-gray-600">{entry.related_number || 'N/A'}</td>
                     <td className={`py-3 font-medium ${getTypeColor(entry.type)}`}>
                       {entry.type === 'income' ? '+' : '-'} R$ {entry.value.toLocaleString('pt-BR')}
                     </td>
@@ -231,22 +187,11 @@ const Financial = () => {
                       <Button variant="destructive" size="sm" onClick={() => handleDeleteEntry(entry.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                      {entry.type === 'income' && entry.status === 'paid' && (
-                        <Button variant="secondary" size="sm" onClick={() => handleIssueInvoice(entry.id)}>
-                          <Receipt className="h-4 w-4" />
-                        </Button>
-                      )}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-          <div className="flex justify-end mt-4">
-            <Button onClick={() => handleIssueInvoice()}>
-              <Receipt className="h-4 w-4 mr-2" />
-              Emitir Nota Fiscal Geral
-            </Button>
           </div>
         </CardContent>
       </Card>

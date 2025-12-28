@@ -41,8 +41,8 @@ const ServiceOrderDetail = () => {
       initialServiceOrder = (location.state as { newServiceOrder: ServiceOrder }).newServiceOrder;
     } else {
       const initialServiceOrderNumber = id 
-        ? `OS-${id}` 
-        : `OS-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.serviceOrderSequence)}`;
+        ? `${id}` 
+        : `${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.serviceOrderSequence)}`;
       if (!id) updateSequence('serviceOrder');
 
       initialServiceOrder = {
@@ -99,11 +99,6 @@ const ServiceOrderDetail = () => {
     }
   }, [location.state, navigate, location.pathname]);
 
-  const handleSave = () => {
-    setIsEditing(false);
-    toast.success('Ordem de Serviço salva com sucesso!');
-  };
-
   const handleStartService = () => {
     setOrderData({ ...orderData, status: 'in_progress' });
     toast.success('Serviço iniciado!');
@@ -112,10 +107,6 @@ const ServiceOrderDetail = () => {
   const handlePauseService = () => {
     setOrderData({ ...orderData, status: 'scheduled' });
     toast.info('Serviço pausado.');
-  };
-
-  const handleDispatchServiceOrder = () => {
-    toast.success(`Ordem de Serviço ${orderData.service_order_number} disparada!`);
   };
 
   const handleCompleteService = () => {
@@ -134,19 +125,22 @@ const ServiceOrderDetail = () => {
     setShowCompletionForm(false);
     toast.success('Ordem de Serviço finalizada!');
 
+    // Automação Especialista: Gera o lançamento financeiro com o DNA da OS
     const financialEntry: FinancialEntry = {
       id: Date.now().toString(),
       description: `Recebimento OS #${orderData.service_order_number}`,
-      value: 10500,
+      value: 10500, // Valor fictício vindo do orçamento
       type: 'income',
       status: 'pending',
-      due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 dias de prazo
       category_id: 'cat-income-services',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      related_number: orderData.service_order_number
+      related_number: orderData.service_order_number // VINCULANDO O DNA
     };
-    console.log('Entrada financeira gerada:', financialEntry);
+
+    console.log('[FINANCEIRO] Lançamento gerado com DNA:', financialEntry.related_number);
+    toast.info(`Lançamento financeiro gerado para o DNA ${financialEntry.related_number}.`);
   };
 
   const getStatusColor = (status: string) => {
@@ -177,35 +171,23 @@ const ServiceOrderDetail = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Ordem de Serviço #{orderData.service_order_number}</h1>
-            <p className="text-gray-600">Detalhes da ordem de serviço</p>
+            <h1 className="text-3xl font-bold text-gray-900">OS #{orderData.service_order_number}</h1>
+            <p className="text-gray-600">Detalhes operacionais</p>
           </div>
         </div>
         
         <div className="flex space-x-2">
-          {orderData.status === 'issued' && (
-            <Button onClick={handleDispatchServiceOrder}>
-              <Send className="h-4 w-4 mr-2" />
-              Disparar OS
-            </Button>
-          )}
           {orderData.status === 'scheduled' && (
             <Button onClick={handleStartService}>
               <Play className="h-4 w-4 mr-2" />
-              Iniciar Serviço
+              Iniciar
             </Button>
           )}
           {orderData.status === 'in_progress' && (
-            <>
-              <Button variant="outline" onClick={handlePauseService}>
-                <Pause className="h-4 w-4 mr-2" />
-                Pausar
-              </Button>
-              <Button onClick={handleCompleteService}>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Finalizar
-              </Button>
-            </>
+            <Button onClick={handleCompleteService}>
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Finalizar OS
+            </Button>
           )}
         </div>
       </div>
@@ -213,44 +195,17 @@ const ServiceOrderDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Informações</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>DNA do Serviço: {orderData.service_order_number}</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center text-sm text-gray-600">
-                  <User className="h-4 w-4 mr-2" />
-                  <span className="font-medium mr-2">Cliente:</span>
-                  <span>{orderData.client}</span>
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <User className="h-4 w-4 mr-2" />
-                  <span className="font-medium mr-2">Técnico:</span>
-                  <span>{orderData.technician || orderData.technician_id}</span>
-                </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <User className="h-4 w-4 mr-2" />
+                <span className="font-medium mr-2">Cliente:</span>
+                <span>{orderData.client}</span>
               </div>
               <div className="flex items-start text-sm text-gray-600">
                 <MapPin className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
-                <span className="font-medium mr-2">Endereço:</span>
+                <span className="font-medium mr-2">Local:</span>
                 <span>{orderData.propertyAddress}</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Serviços</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {orderData.services?.map((service) => (
-                  <div key={service.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium">{service.description}</h3>
-                      <Badge variant="secondary">{service.status}</Badge>
-                    </div>
-                  </div>
-                ))}
               </div>
             </CardContent>
           </Card>
@@ -258,31 +213,27 @@ const ServiceOrderDetail = () => {
 
         <div className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center space-y-4">
-                <Badge className={getStatusColor(orderData.status)}>
-                  {getStatusText(orderData.status)}
-                </Badge>
-              </div>
+            <CardHeader><CardTitle>Status</CardTitle></CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <Badge className={getStatusColor(orderData.status)}>
+                {getStatusText(orderData.status)}
+              </Badge>
             </CardContent>
           </Card>
         </div>
       </div>
 
       {showCompletionForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-lg">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-lg bg-white">
             <CardHeader>
-              <CardTitle>Finalizar OS</CardTitle>
+              <CardTitle>Finalizar Ordem de Serviço</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <Textarea
                 value={completionNotes}
                 onChange={(e) => setCompletionNotes(e.target.value)}
-                placeholder="Detalhes da conclusão..."
+                placeholder="Descreva a finalização técnica..."
               />
               <FileUpload
                 onFilesAdded={(f) => setCompletionPhotos([...completionPhotos, ...f])}
@@ -292,7 +243,7 @@ const ServiceOrderDetail = () => {
               />
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setShowCompletionForm(false)}>Cancelar</Button>
-                <Button onClick={submitCompletion}>Confirmar</Button>
+                <Button onClick={submitCompletion}>Confirmar e Gerar Receita</Button>
               </div>
             </CardContent>
           </Card>

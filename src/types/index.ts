@@ -149,7 +149,7 @@ export interface FinancialEntry {
   category_id: string;
   created_at: string;
   updated_at: string;
-  related_number?: string;
+  related_number?: string; // O DNA do processo (ex: 0001-23)
 }
 
 export interface FinancialCategory {
