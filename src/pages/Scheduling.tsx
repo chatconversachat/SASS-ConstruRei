@@ -18,10 +18,16 @@ import {
 import { Appointment } from '@/types';
 import { toast } from 'sonner';
 import AppointmentCreateForm from '@/components/scheduling/AppointmentCreateForm';
+import AppointmentFilters from '@/components/scheduling/AppointmentFilters';
 
 const Scheduling = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   
   const [appointments, setAppointments] = useState<Appointment[]>([
     {
@@ -65,9 +71,15 @@ const Scheduling = () => {
     },
   ]);
 
-  const appointmentsForSelectedDate = appointments.filter(app => 
-    selectedDate && isSameDay(parseISO(app.date), selectedDate)
-  ).sort((a, b) => a.startTime.localeCompare(b.startTime));
+  const filteredAppointments = appointments.filter(app => {
+    const matchesSearch = app.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          app.clientName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
+    const matchesType = typeFilter === 'all' || app.type === typeFilter;
+    const matchesDate = selectedDate && isSameDay(parseISO(app.date), selectedDate);
+    
+    return matchesSearch && matchesStatus && matchesType && matchesDate;
+  }).sort((a, b) => a.startTime.localeCompare(b.startTime));
 
   const getStatusColor = (status: Appointment['status']) => {
     switch (status) {
@@ -100,7 +112,7 @@ const Scheduling = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Agenda</h1>
@@ -109,34 +121,46 @@ const Scheduling = () => {
         <Button onClick={() => setIsModalOpen(true)}>Novo Agendamento</Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Visualização da Agenda</CardTitle>
-          </CardHeader>
-          <CardContent className="flex justify-center p-0 md:p-6">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              className="rounded-md border mx-auto"
-              locale={ptBR}
-            />
-          </CardContent>
-        </Card>
+      {/* Calendário em Largura Total */}
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Visualização da Agenda</CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-center p-2 sm:p-6 overflow-x-auto">
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            className="rounded-md border w-full max-w-4xl"
+            locale={ptBR}
+          />
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">
-              Compromissos para {selectedDate ? format(selectedDate, 'dd/MM/yyyy', { locale: ptBR }) : 'Nenhum dia selecionado'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {appointmentsForSelectedDate.length > 0 ? (
-              appointmentsForSelectedDate.map((app) => (
-                <div key={app.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+      {/* Cabeçalho de Filtros */}
+      <AppointmentFilters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        typeFilter={typeFilter}
+        setTypeFilter={setTypeFilter}
+      />
+
+      {/* Lista de Compromissos */}
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-lg">
+            Compromissos para {selectedDate ? format(selectedDate, 'dd/MM/yyyy', { locale: ptBR }) : 'Nenhum dia selecionado'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredAppointments.length > 0 ? (
+              filteredAppointments.map((app) => (
+                <div key={app.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors bg-white">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-gray-900">{app.title}</h3>
+                    <h3 className="font-semibold text-gray-900 line-clamp-1">{app.title}</h3>
                     <Badge className={getStatusColor(app.status)}>
                       {getStatusText(app.status)}
                     </Badge>
@@ -169,11 +193,13 @@ const Scheduling = () => {
                 </div>
               ))
             ) : (
-              <p className="text-center text-gray-500 py-8">Nenhum compromisso para esta data.</p>
+              <div className="col-span-full text-center text-gray-500 py-12">
+                Nenhum compromisso encontrado para os filtros selecionados.
+              </div>
             )}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
