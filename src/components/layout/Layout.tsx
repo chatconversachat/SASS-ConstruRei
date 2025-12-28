@@ -1,31 +1,26 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
-// import { useAuth } from '@/context/AuthContext'; // Removido
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  // const { loading } = useAuth(); // Removido
-
-  // if (loading) { // Removido
-  //   return (
-  //     <div className="flex items-center justify-center h-screen">
-  //       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-  //     </div>
-  //   );
-  // }
-
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      {/* Sidebar Desktop: Visível apenas em telas LG ou superiores */}
+      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 z-40">
+        <Sidebar />
+      </aside>
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Conteúdo Principal: Com margin-left no desktop para dar espaço ao Sidebar fixo */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
+        <main className="flex-1 overflow-y-auto focus:outline-none custom-scrollbar">
+          <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

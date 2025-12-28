@@ -10,7 +10,6 @@ import {
   BarChart2, 
   Settings,
   ShoppingCart,
-  User,
   LogOut,
   Wrench,
   FileSpreadsheet,
@@ -18,9 +17,13 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner'; // Importar toast
+import { toast } from 'sonner';
 
-const Sidebar = () => {
+interface SidebarProps {
+  onItemClick?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onItemClick }) => {
   const location = useLocation();
 
   const menuItems = [
@@ -41,56 +44,59 @@ const Sidebar = () => {
   ];
 
   const handleLogout = () => {
-    toast.info('Funcionalidade de logout simulada. Você seria desconectado.');
-    // Em um app real, aqui você limparia o estado de autenticação e redirecionaria para a tela de login.
+    toast.info('Funcionalidade de logout simulada.');
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-900 text-white w-64">
-      <div className="p-4 border-b border-gray-800">
-        <h1 className="text-xl font-bold">CONSTRUREI</h1>
-        <p className="text-sm text-gray-400">Sistema de Gestão</p>
+    <div className="flex flex-col h-full bg-slate-900 text-white w-full">
+      <div className="p-6 border-b border-slate-800">
+        <h1 className="text-xl font-bold tracking-tight text-blue-400">CONSTRUREI</h1>
+        <p className="text-xs text-slate-400 uppercase tracking-widest mt-1">Gestão de Obras</p>
       </div>
       
-      <nav className="flex-1 p-4 overflow-y-auto">
+      <nav className="flex-1 p-4 overflow-y-auto overflow-x-hidden custom-scrollbar">
         <ul className="space-y-1">
           {menuItems.map((item) => (
             <li key={item.path}>
               <Link 
                 to={item.path}
+                onClick={onItemClick}
                 className={cn(
-                  "flex items-center p-3 rounded-lg w-full transition-colors",
+                  "flex items-center p-3 rounded-lg w-full transition-all duration-200 group",
                   location.pathname === item.path 
-                    ? "bg-blue-600 text-white" 
-                    : "text-gray-300 hover:bg-gray-800"
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20" 
+                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
                 )}
               >
-                <item.icon className="h-5 w-5 mr-3" />
-                {item.name}
+                <item.icon className={cn(
+                  "h-5 w-5 mr-3 transition-colors",
+                  location.pathname === item.path ? "text-white" : "text-slate-500 group-hover:text-blue-400"
+                )} />
+                <span className="font-medium">{item.name}</span>
               </Link>
             </li>
           ))}
         </ul>
       </nav>
       
-      <div className="p-4 border-t border-gray-800">
-        <div className="flex items-center mb-4">
-          <div className="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10" />
-          <div className="ml-3">
-            <p className="text-sm font-medium truncate">Usuário</p> {/* Placeholder */}
-            <p className="text-xs text-gray-400 capitalize">
-              Administrador {/* Placeholder */}
-            </p>
+      <div className="p-4 border-t border-slate-800 bg-slate-900/50">
+        <div className="flex items-center mb-4 px-2">
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-full w-10 h-10 flex items-center justify-center text-blue-400 font-bold">
+            AD
+          </div>
+          <div className="ml-3 overflow-hidden">
+            <p className="text-sm font-semibold truncate text-slate-200">Admin User</p>
+            <p className="text-xs text-slate-500 capitalize truncate">Administrador</p>
           </div>
         </div>
         
         <Button 
-          variant="outline" 
-          className="w-full justify-start text-white border-gray-700 hover:bg-gray-800"
+          variant="ghost" 
+          className="w-full justify-start text-slate-400 hover:text-white hover:bg-red-500/10 hover:text-red-400 border border-transparent hover:border-red-500/20"
           onClick={handleLogout}
         >
           <LogOut className="h-4 w-4 mr-2" />
-          Sair
+          Sair do Sistema
         </Button>
       </div>
     </div>
