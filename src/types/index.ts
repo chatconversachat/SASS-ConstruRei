@@ -35,6 +35,7 @@ export interface Visit {
   id: string;
   visit_number: string;
   lead_id: string;
+  appointment_id?: string; // Vínculo com a agenda
   scheduled_date: string;
   technician_id: string;
   status: 'scheduled' | 'completed' | 'cancelled';
@@ -200,4 +201,5 @@ export interface Appointment {
   status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
   notes?: string;
   propertyAddress?: string;
+  visit_id?: string; // Vínculo com a visita técnica
 }
