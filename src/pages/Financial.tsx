@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+"use client";
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, DollarSign, TrendingUp, TrendingDown, Plus, Edit, Receipt, Trash2 } from 'lucide-react';
+import { Search, DollarSign, TrendingUp, TrendingDown, Plus, Edit, Trash2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { toast } from 'sonner';
 import { FinancialEntry } from '@/types';
@@ -20,7 +22,7 @@ const Financial = () => {
     { id: '5', description: 'Equipamentos', value: 8000, type: 'expense', status: 'pending', due_date: '2023-06-25', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0003-23' },
   ]);
 
-  const revenueData = [
+  const monthlyRevenueData = [
     { name: 'Jan', receita: 4000, despesa: 2400 },
     { name: 'Fev', receita: 3000, despesa: 1398 },
     { name: 'Mar', receita: 2000, despesa: 1800 },
@@ -29,12 +31,12 @@ const Financial = () => {
     { name: 'Jun', receita: 2390, despesa: 1900 },
   ];
 
-  const cashFlowData = [
-    { name: 'Entradas', value: 15000 },
-    { name: 'Saídas', value: 12000 },
+  const cashFlowSummary = [
+    { name: 'Entradas', value: financialEntries.filter(e => e.type === 'income' && e.status === 'paid').reduce((sum, e) => sum + e.value, 0) },
+    { name: 'Saídas', value: financialEntries.filter(e => e.type === 'expense' && e.status === 'paid').reduce((sum, e) => sum + e.value, 0) },
   ];
 
-  const COLORS = ['#10B981', '#EF4444'];
+  const PIE_COLORS = ['#10B981', '#EF4444'];
 
   const getTypeColor = (type: string) => {
     return type === 'income' ? 'text-green-600' : 'text-red-600';
@@ -69,10 +71,6 @@ const Financial = () => {
   const handleDeleteEntry = (entryId: string) => {
     setFinancialEntries(financialEntries.filter(entry => entry.id !== entryId));
     toast.success('Lançamento excluído.');
-  };
-
-  const handleIssueInvoice = (entryId?: string) => {
-    toast.success(`Nota fiscal processada para o registro.`);
   };
 
   // Filtragem básica por DNA ou descrição
@@ -114,7 +112,7 @@ const Financial = () => {
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ 15.000</div>
+            <div className="text-2xl font-bold">R$ {cashFlowSummary[0].value.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
         
@@ -124,7 +122,7 @@ const Financial = () => {
             <TrendingDown className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ 12.000</div>
+            <div className="text-2xl font-bold">R$ {cashFlowSummary[1].value.toLocaleString('pt-BR')}</div>
           </CardContent>
         </Card>
         
@@ -134,7 +132,54 @@ const Financial = () => {
             <DollarSign className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ 3.000</div>
+            <div className="text-2xl font-bold">R$ {(cashFlowSummary[0].value - cashFlowSummary[1].value).toLocaleString('pt-BR')}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Fluxo de Caixa Mensal</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyRevenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Valor']} />
+                <Bar dataKey="receita" fill="#10B981" name="Receita" />
+                <Bar dataKey="despesa" fill="#EF4444" name="Despesa" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Composição do Fluxo de Caixa</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={cashFlowSummary}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                >
+                  {cashFlowSummary.map((_entry, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Valor']} />
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>

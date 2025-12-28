@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+"use client";
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Calendar, User, Camera, Video } from 'lucide-react';
+import { Search, Calendar, User } from 'lucide-react';
 import { Visit } from '@/types';
 import { useNavigate } from 'react-router-dom';
-import { generateSequentialNumber, appNumberConfig, updateSequence, checkNumberExists } from '@/utils/numberGenerator';
+import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
 import { toast } from 'sonner';
 
 const Visits = () => {

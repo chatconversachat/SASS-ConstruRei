@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Phone, Mail, MapPin, Calendar, User, DollarSign } from 'lucide-react';
+import { MapPin, User, DollarSign } from 'lucide-react';
 import { Lead, Client } from '@/types';
 
 interface LeadCardProps {

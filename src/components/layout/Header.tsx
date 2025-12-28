@@ -1,4 +1,5 @@
-import React from 'react';
+"use client";
+
 import { Bell, Search, Menu, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

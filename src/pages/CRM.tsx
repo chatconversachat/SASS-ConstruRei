@@ -113,7 +113,7 @@ const CRM = () => {
     { status: 'lost', title: 'Perdido' }
   ];
 
-  const handleCreateLead = (status: Lead['status']) => {
+  const handleCreateLead = (_status: Lead['status']) => {
     setSelectedLead(null); // Para criar um novo
     setSelectedClient(null);
     setModalTitle('Novo Lead');

@@ -1,4 +1,4 @@
-export const generateSequentialNumber = (prefix: string, currentCount: number, yearSuffix: boolean = true): string => {
+export const generateSequentialNumber = (_prefix: string, currentCount: number, yearSuffix: boolean = true): string => {
   const paddedCount = String(currentCount).padStart(4, '0');
   const year = yearSuffix ? new Date().getFullYear().toString().slice(-2) : '';
   return `${paddedCount}-${year}`;

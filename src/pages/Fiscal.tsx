@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+"use client";
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, FileText, Calendar, DollarSign, TrendingUp } from 'lucide-react';
+import { Search, FileText, DollarSign, TrendingUp } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { toast } from 'sonner'; // Importar toast
 
@@ -19,7 +21,7 @@ const Fiscal = () => {
     { name: 'Lucro Líquido', value: 37500 },
   ];
 
-  const revenueData = [
+  const monthlyRevenueAndExpenseData = [
     { name: 'Jan', receita: 25000, despesa: 18000 },
     { name: 'Fev', receita: 22000, despesa: 16000 },
     { name: 'Mar', receita: 28000, despesa: 20000 },
@@ -112,22 +114,19 @@ const Fiscal = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>DRE Resumida</CardTitle>
+            <CardTitle>Receita vs Despesa Mensal</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={dreData}>
+              <BarChart data={monthlyRevenueAndExpenseData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip 
-                  formatter={(value) => [`R$ ${Number(value).toLocaleString('pt-BR')}`, 'Valor']}
+                  formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Valor']}
                 />
-                <Bar dataKey="value" name="Valor">
-                  {dreData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
+                <Bar dataKey="receita" fill="#10B981" name="Receita" />
+                <Bar dataKey="despesa" fill="#EF4444" name="Despesa" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -150,12 +149,12 @@ const Fiscal = () => {
                   dataKey="value"
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 >
-                  {dreData.filter(item => item.value > 0).map((entry, index) => (
+                  {dreData.filter(item => item.value > 0).map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value) => [`R$ ${Number(value).toLocaleString('pt-BR')}`, 'Valor']}
+                  formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Valor']}
                 />
               </PieChart>
             </ResponsiveContainer>

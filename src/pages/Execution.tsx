@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+"use client";
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Search, Calendar, User, Camera, Video, FileText } from 'lucide-react';
+import { Search, User, Camera, Video } from 'lucide-react';
 import { toast } from 'sonner'; // Importar toast
 
 const Execution = () => {
@@ -104,7 +105,7 @@ const Execution = () => {
                     Fotos ({entry.photos.length})
                   </h4>
                   <div className="flex space-x-2 overflow-x-auto pb-2">
-                    {entry.photos.map((photo, index) => (
+                    {entry.photos.map((_photo, index) => (
                       <div key={index} className="bg-gray-200 border-2 border-dashed rounded-xl w-24 h-24 flex-shrink-0" />
                     ))}
                   </div>
@@ -118,7 +119,7 @@ const Execution = () => {
                     Vídeos ({entry.videos.length})
                   </h4>
                   <div className="flex space-x-2 overflow-x-auto pb-2">
-                    {entry.videos.map((video, index) => (
+                    {entry.videos.map((_video, index) => (
                       <div key={index} className="bg-gray-200 border-2 border-dashed rounded-xl w-24 h-24 flex-shrink-0 flex items-center justify-center">
                         <Video className="h-8 w-8 text-gray-500" />
                       </div>
