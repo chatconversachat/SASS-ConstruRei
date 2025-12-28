@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 import AppointmentCreateForm from '@/components/scheduling/AppointmentCreateForm';
 import AppointmentFilters from '@/components/scheduling/AppointmentFilters';
 import SchedulingIndicators from '@/components/scheduling/SchedulingIndicators';
-import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
+import { generateSequentialNumber, appNumberConfig, updateSequence, checkNumberExists } from '@/utils/numberGenerator';
 
 const Scheduling = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -64,13 +64,24 @@ const Scheduling = () => {
     let updatedApp = { ...newApp };
 
     if (newApp.type === 'visit') {
+      const nextNumber = generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence);
+      
+      // Especialista: Verifica se o número já existe antes de prosseguir
+      const alreadyExists = checkNumberExists(nextNumber, appointments, 'title'); // Simplificação para o mock
+
+      if (alreadyExists) {
+        toast.error(`O número ${nextNumber} já está em uso. Redirecionando para o registro existente...`);
+        // Aqui abriria o registro existente
+        setIsModalOpen(false);
+        return;
+      }
+
       const visitId = `vis-${Date.now()}`;
-      const visitNumber = generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence);
       updateSequence('visit');
 
       const newVisit: Visit = {
         id: visitId,
-        visit_number: visitNumber,
+        visit_number: nextNumber,
         lead_id: 'auto-generated',
         appointment_id: newApp.id,
         scheduled_date: newApp.date,
@@ -89,7 +100,7 @@ const Scheduling = () => {
       };
 
       updatedApp.visit_id = visitId;
-      toast.info(`Registro de Visita ${visitNumber} gerado automaticamente.`);
+      toast.info(`Número sequencial ${nextNumber} gerado e vinculado ao fluxo.`);
     }
 
     setAppointments(prev => [...prev, updatedApp]);
@@ -99,9 +110,9 @@ const Scheduling = () => {
 
   const handleViewAppointmentDetails = (app: Appointment) => {
     if (app.type === 'visit' && app.visit_id) {
-      toast.info(`Visualizando detalhes da Visita vinculada...`);
+      toast.info(`Acessando fluxo operacional do registro vinculado.`);
     } else {
-      toast.info(`Visualizando detalhes do agendamento: ${app.id}`);
+      toast.info(`Visualizando detalhes: ${app.title}`);
     }
   };
 

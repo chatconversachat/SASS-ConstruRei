@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Calendar, User, Camera, Video } from 'lucide-react';
 import { Visit } from '@/types';
 import { useNavigate } from 'react-router-dom';
-import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
+import { generateSequentialNumber, appNumberConfig, updateSequence, checkNumberExists } from '@/utils/numberGenerator';
 import { toast } from 'sonner';
 
 const Visits = () => {
@@ -63,12 +63,23 @@ const Visits = () => {
   ]);
 
   const handleNewVisit = () => {
+    const nextNumber = generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence);
+    
+    // Especialista: Bloqueia duplicidade e sugere redirecionamento
+    const existingVisit = mockVisits.find(v => v.visit_number === nextNumber);
+
+    if (existingVisit) {
+      toast.error(`O registro ${nextNumber} já existe. Abrindo detalhes...`);
+      navigate(`/visits/${existingVisit.id}`);
+      return;
+    }
+
     const newId = Date.now().toString();
-    const newVisitNumber = generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence);
     updateSequence('visit');
+    
     const newVisit: Visit = {
       id: newId,
-      visit_number: newVisitNumber,
+      visit_number: nextNumber,
       lead_id: 'new_lead',
       scheduled_date: new Date().toISOString(),
       technician_id: 'New Tech',
@@ -81,13 +92,14 @@ const Visits = () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
+    
     setMockVisits([...mockVisits, newVisit]);
     navigate(`/visits/${newId}`);
-    toast.success(`Nova visita ${newVisitNumber} criada!`);
+    toast.success(`Registro único ${nextNumber} iniciado com sucesso!`);
   };
 
-  const handleEditVisit = (visitNumber: string) => {
-    toast.info(`Editando visita: #${visitNumber}`);
+  const handleEditVisit = (visitId: string) => {
+    navigate(`/visits/${visitId}`);
   };
 
   const getStatusColor = (status: Visit['status']) => {
@@ -158,21 +170,6 @@ const Visits = () => {
                 <span>Data: {new Date(visit.scheduled_date).toLocaleDateString('pt-BR')}</span>
               </div>
               
-              <div className="flex items-center text-sm text-gray-600">
-                <Calendar className="h-4 w-4 mr-2" />
-                <span>Horário: {new Date(visit.scheduled_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-              </div>
-              
-              <div className="flex items-center text-sm text-gray-600">
-                <Camera className="h-4 w-4 mr-2" />
-                <span>{visit.photos.length} fotos</span>
-              </div>
-              
-              <div className="flex items-center text-sm text-gray-600">
-                <Video className="h-4 w-4 mr-2" />
-                <span>{visit.videos.length} vídeos</span>
-              </div>
-              
               <div className="flex space-x-2 pt-2">
                 <Button 
                   variant="outline" 
@@ -182,7 +179,7 @@ const Visits = () => {
                 >
                   Visualizar
                 </Button>
-                <Button size="sm" className="flex-1" onClick={() => handleEditVisit(visit.visit_number)}>
+                <Button size="sm" className="flex-1" onClick={() => handleEditVisit(visit.id)}>
                   Editar
                 </Button>
               </div>
