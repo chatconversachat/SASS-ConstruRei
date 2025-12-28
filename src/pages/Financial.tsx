@@ -1,191 +1,124 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, DollarSign, TrendingUp, TrendingDown, Plus, Edit, Receipt, Trash2 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Search, Plus, Save, MoreVertical, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { FinancialEntry } from '@/types';
 
 const Financial = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Dados mockados com o DNA (Related Number)
-  const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>([
-    { id: '1', description: 'Pagamento OS #0001-23', value: 5000, type: 'income', status: 'paid', due_date: '2023-06-15', payment_date: '2023-06-15', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0001-23' },
-    { id: '2', description: 'Material para reforma', value: 2500, type: 'expense', status: 'paid', due_date: '2023-06-10', payment_date: '2023-06-10', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0001-23' },
-    { id: '3', description: 'Pagamento técnico', value: 1200, type: 'expense', status: 'paid', due_date: '2023-06-05', payment_date: '2023-06-05', category_id: 'cat3', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0002-23' },
-    { id: '4', description: 'OS #0002-23', value: 3500, type: 'income', status: 'pending', due_date: '2023-06-20', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0002-23' },
-    { id: '5', description: 'Equipamentos', value: 8000, type: 'expense', status: 'pending', due_date: '2023-06-25', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0003-23' },
+  const [financialEntries] = useState<FinancialEntry[]>([
+    { id: '1', description: 'Venda de Unidades', value: 2500000, type: 'income', status: 'paid', due_date: '2024-02-01', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0001-24' },
+    { id: '2', description: '1ª Parcela', value: 25000, type: 'income', status: 'paid', due_date: '2023-10-10', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0001-24' },
+    { id: '3', description: '2ª Parcela', value: 25000, type: 'income', status: 'paid', due_date: '2023-11-10', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0001-24' },
+    { id: '4', description: '3ª Parcela', value: 25000, type: 'income', status: 'paid', due_date: '2023-12-10', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: '0001-24' },
   ]);
-
-  const revenueData = [
-    { name: 'Jan', receita: 4000, despesa: 2400 },
-    { name: 'Fev', receita: 3000, despesa: 1398 },
-    { name: 'Mar', receita: 2000, despesa: 1800 },
-    { name: 'Abr', receita: 2780, despesa: 2000 },
-    { name: 'Mai', receita: 1890, despesa: 1500 },
-    { name: 'Jun', receita: 2390, despesa: 1900 },
-  ];
-
-  const cashFlowData = [
-    { name: 'Entradas', value: 15000 },
-    { name: 'Saídas', value: 12000 },
-  ];
-
-  const COLORS = ['#10B981', '#EF4444'];
-
-  const getTypeColor = (type: string) => {
-    return type === 'income' ? 'text-green-600' : 'text-red-600';
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'overdue': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    const statusMap: Record<string, string> = {
-      paid: 'Pago',
-      pending: 'Pendente',
-      overdue: 'Atrasado'
-    };
-    return statusMap[status] || status;
-  };
-
-  const handleAddEntry = () => {
-    toast.info('Funcionalidade de adicionar lançamento com vínculo de DNA em desenvolvimento.');
-  };
-
-  const handleEditEntry = (entryId: string) => {
-    toast.info(`Editando lançamento ${entryId}.`);
-  };
-
-  const handleDeleteEntry = (entryId: string) => {
-    setFinancialEntries(financialEntries.filter(entry => entry.id !== entryId));
-    toast.success('Lançamento excluído.');
-  };
-
-  const handleIssueInvoice = (entryId?: string) => {
-    toast.success(`Nota fiscal processada para o registro.`);
-  };
-
-  // Filtragem básica por DNA ou descrição
-  const filteredEntries = financialEntries.filter(entry => 
-    entry.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (entry.related_number && entry.related_number.includes(searchTerm))
-  );
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Financeiro</h1>
-          <p className="text-gray-600">Gestão financeira por serviço/obra (DNA)</p>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input 
-              type="text" 
-              placeholder="Buscar por DNA (ex: 0001-23)..." 
-              className="pl-10 w-full" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+      {/* Cabeçalho superior conforme imagem */}
+      <div className="bg-white p-6 rounded-md shadow-sm border border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Financeiro</p>
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-semibold text-slate-800">Venda de Unidades</h1>
+              <span className="text-2xl font-bold text-slate-700">R$ 2.500.000,00</span>
+            </div>
           </div>
-          <Button onClick={handleAddEntry}>
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Lançamento
-          </Button>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="bg-slate-50 px-3 py-1.5 rounded border border-slate-100 text-center">
+              <p className="text-[9px] text-slate-400 uppercase font-bold">Valor Corrigido</p>
+              <p className="text-xs font-bold text-slate-600">R$ 2.524.315,53</p>
+            </div>
+            <div className="bg-slate-50 px-3 py-1.5 rounded border border-slate-100 text-center">
+              <p className="text-[9px] text-slate-400 uppercase font-bold">Valor Recebido</p>
+              <p className="text-xs font-bold text-slate-600">R$ 0,00</p>
+            </div>
+            <div className="bg-slate-50 px-3 py-1.5 rounded border border-slate-100 text-center">
+              <p className="text-[9px] text-slate-400 uppercase font-bold">Saldo Corrigido</p>
+              <p className="text-xs font-bold text-slate-600">R$ 2.524.315,53</p>
+            </div>
+            <Button className="bg-[#28a745] hover:bg-[#218838] text-white gap-2 ml-2">
+              <Save className="h-4 w-4" /> Salvar
+            </Button>
+            <Button variant="outline" size="icon" className="bg-[#ffc107] border-none text-white hover:bg-[#e0a800]">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ 15.000</div>
+      {/* Grid de Conteúdo */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="shadow-sm border-slate-200">
+          <CardContent className="p-6">
+            <h3 className="text-sm font-bold text-slate-500 mb-4 uppercase">Dados Gerais</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-slate-500 font-bold mb-1 block">Cliente *</label>
+                <div className="relative">
+                  <Input defaultValue="Juliano Amaral" className="bg-slate-50 border-slate-200" />
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Despesas</CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ 12.000</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Saldo</CardTitle>
-            <DollarSign className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ 3.000</div>
+        <Card className="shadow-sm border-slate-200">
+          <CardContent className="p-6">
+            <h3 className="text-sm font-bold text-slate-500 mb-4 uppercase">Dados da Venda</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-slate-500 font-bold mb-1 block">Vendedor</label>
+                <div className="relative">
+                  <Input placeholder="Selecione" className="bg-slate-50 border-slate-200 pr-10" />
+                  <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Lançamentos Financeiros (DNA do Serviço)</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* Tabela de Parcelas Estilo Referência */}
+      <Card className="shadow-sm border-slate-200">
+        <CardContent className="p-0">
+          <div className="p-4 flex items-center justify-between border-b border-slate-100">
+            <h3 className="text-sm font-bold text-slate-500 uppercase">Parcelas</h3>
+            <Button size="sm" className="bg-[#28a745] hover:bg-[#218838] h-8 text-[11px] font-bold">
+              <Plus className="h-3 w-3 mr-1" /> ADICIONAR
+            </Button>
+          </div>
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">DNA do Serviço</th>
-                  <th className="text-left py-2">Descrição</th>
-                  <th className="text-left py-2">Valor</th>
-                  <th className="text-left py-2">Tipo</th>
-                  <th className="text-left py-2">Vencimento</th>
-                  <th className="text-left py-2">Status</th>
-                  <th className="text-left py-2">Ações</th>
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50/50">
+                <tr className="border-b border-slate-100">
+                  <th className="text-left py-3 px-6 text-[11px] text-slate-500 uppercase font-bold">Recebido</th>
+                  <th className="text-left py-3 px-6 text-[11px] text-slate-500 uppercase font-bold">Tipo</th>
+                  <th className="text-left py-3 px-6 text-[11px] text-slate-500 uppercase font-bold">Vencimento</th>
+                  <th className="text-left py-3 px-6 text-[11px] text-slate-500 uppercase font-bold">Valor</th>
+                  <th className="text-left py-3 px-6 text-[11px] text-slate-500 uppercase font-bold">Valor Recebido</th>
+                  <th className="text-center py-3 px-6"></th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredEntries.map((entry) => (
-                  <tr key={entry.id} className="border-b hover:bg-slate-50 transition-colors">
-                    <td className="py-3">
-                      <Badge variant="outline" className="font-mono bg-blue-50 text-blue-700 border-blue-200">
-                        {entry.related_number || 'S/ DNA'}
-                      </Badge>
+              <tbody className="divide-y divide-slate-100">
+                {financialEntries.slice(1).map((entry, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-4 px-6 text-slate-400">---</td>
+                    <td className="py-4 px-6 font-medium text-blue-600 hover:underline cursor-pointer">{entry.description}</td>
+                    <td className="py-4 px-6 text-slate-600">{new Date(entry.due_date).toLocaleDateString('pt-BR')}</td>
+                    <td className="py-4 px-6 font-bold text-slate-700">R$ {entry.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className="py-4 px-6">
+                       <div className="w-full h-8 bg-slate-50 rounded border border-slate-200" />
                     </td>
-                    <td className="py-3">{entry.description}</td>
-                    <td className={`py-3 font-medium ${getTypeColor(entry.type)}`}>
-                      {entry.type === 'income' ? '+' : '-'} R$ {entry.value.toLocaleString('pt-BR')}
-                    </td>
-                    <td className="py-3">
-                      <Badge variant={entry.type === 'income' ? 'default' : 'destructive'}>
-                        {entry.type === 'income' ? 'Receita' : 'Despesa'}
-                      </Badge>
-                    </td>
-                    <td className="py-3">{new Date(entry.due_date).toLocaleDateString('pt-BR')}</td>
-                    <td className="py-3">
-                      <Badge className={getStatusColor(entry.status)}>
-                        {getStatusText(entry.status)}
-                      </Badge>
-                    </td>
-                    <td className="py-3 flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEditEntry(entry.id)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDeleteEntry(entry.id)}>
-                        <Trash2 className="h-4 w-4" />
+                    <td className="py-4 px-6 text-center">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400">
+                        <MoreVertical className="h-4 w-4" />
                       </Button>
                     </td>
                   </tr>
