@@ -6,13 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, Users, Bell, Database, Shield, Hash } from 'lucide-react'; // Importar Hash
-import { appNumberConfig } from '@/utils/numberGenerator'; // Importar a configuração
+import { Save, Users, Bell, Database, Shield, Hash } from 'lucide-react';
+import { appNumberConfig } from '@/utils/numberGenerator';
+import { toast } from 'sonner';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('general');
   
-  // Estados para configurações
   const [companyName, setCompanyName] = useState('CONSTRUREI');
   const [companyEmail, setCompanyEmail] = useState('contato@construrei.com');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -20,14 +20,11 @@ const Settings = () => {
   const [whatsappNotifications, setWhatsappNotifications] = useState(true);
   const [autoBackup, setAutoBackup] = useState(true);
   const [backupFrequency, setBackupFrequency] = useState('daily');
-  // Novo estado para o prefixo do número sequencial
   const [numberPrefix, setNumberPrefix] = useState(appNumberConfig.prefix); 
   
   const handleSave = () => {
-    // Lógica de salvamento
     console.log('Configurações salvas');
-    // Em um app real, você enviaria isso para o backend
-    appNumberConfig.prefix = numberPrefix; // Atualiza a configuração global (simulada)
+    appNumberConfig.prefix = numberPrefix;
     toast.success('Configurações salvas com sucesso!');
   };
 
@@ -166,8 +163,6 @@ const Settings = () => {
                   </div>
                   <Button variant="outline">Gerenciar</Button>
                 </div>
-                
-                <Button className="w-full">Adicionar Novo Perfil</Button>
               </div>
             </CardContent>
           </Card>
@@ -212,24 +207,6 @@ const Settings = () => {
                 />
               </div>
               
-              <div className="space-y-4 pt-4">
-                <h3 className="font-medium">Tipos de Notificação</h3>
-                <div className="space-y-3">
-                  {[
-                    { id: 'leads', label: 'Novos Leads', enabled: true },
-                    { id: 'visits', label: 'Agendamento de Visitas', enabled: true },
-                    { id: 'budgets', label: 'Orçamentos Enviados', enabled: true },
-                    { id: 'orders', label: 'Ordens de Serviço', enabled: true },
-                    { id: 'payments', label: 'Pagamentos', enabled: true },
-                  ].map((item) => (
-                    <div key={item.id} className="flex items-center justify-between">
-                      <Label>{item.label}</Label>
-                      <Switch defaultChecked={item.enabled} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
               <Button onClick={handleSave}>
                 <Save className="h-4 w-4 mr-2" />
                 Salvar Configurações
@@ -259,40 +236,6 @@ const Settings = () => {
                     <p className="text-sm text-gray-600">Encerrar sessão após inatividade</p>
                   </div>
                   <Switch defaultChecked />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label>Tempo de Expiração (minutos)</Label>
-                  <Input type="number" defaultValue="30" />
-                </div>
-              </div>
-              
-              <div className="pt-4">
-                <h3 className="font-medium mb-4">Políticas de Senha</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">Comprimento Mínimo</h4>
-                      <p className="text-sm text-gray-600">Número mínimo de caracteres</p>
-                    </div>
-                    <Input type="number" defaultValue="8" className="w-20" />
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">Exigir Números</h4>
-                      <p className="text-sm text-gray-600">Senhas devem conter números</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">Exigir Caracteres Especiais</h4>
-                      <p className="text-sm text-gray-600">Senhas devem conter caracteres especiais</p>
-                    </div>
-                    <Switch />
-                  </div>
                 </div>
               </div>
               

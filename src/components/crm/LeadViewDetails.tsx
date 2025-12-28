@@ -4,7 +4,7 @@ import React from 'react';
 import { Lead, Client } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Phone, Mail, MapPin, Calendar, User, Info } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, User, Info, DollarSign } from 'lucide-react';
 
 interface LeadViewDetailsProps {
   lead: Lead;

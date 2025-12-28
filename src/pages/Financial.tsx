@@ -13,11 +13,11 @@ const Financial = () => {
   
   // Dados mockados para demonstração
   const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>([
-    { id: '1', description: 'Pagamento OS #123', value: 5000, type: 'income', status: 'paid', dueDate: '2023-06-15', paymentDate: '2023-06-15', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-123' },
-    { id: '2', description: 'Material para reforma', value: 2500, type: 'expense', status: 'paid', dueDate: '2023-06-10', paymentDate: '2023-06-10', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-123' },
-    { id: '3', description: 'Pagamento técnico', value: 1200, type: 'expense', status: 'paid', dueDate: '2023-06-05', paymentDate: '2023-06-05', category_id: 'cat3', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-124' },
-    { id: '4', description: 'OS #124', value: 3500, type: 'income', status: 'pending', dueDate: '2023-06-20', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-124' },
-    { id: '5', description: 'Equipamentos', value: 8000, type: 'expense', status: 'pending', dueDate: '2023-06-25', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-125' },
+    { id: '1', description: 'Pagamento OS #123', value: 5000, type: 'income', status: 'paid', due_date: '2023-06-15', payment_date: '2023-06-15', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-123' },
+    { id: '2', description: 'Material para reforma', value: 2500, type: 'expense', status: 'paid', due_date: '2023-06-10', payment_date: '2023-06-10', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-123' },
+    { id: '3', description: 'Pagamento técnico', value: 1200, type: 'expense', status: 'paid', due_date: '2023-06-05', payment_date: '2023-06-05', category_id: 'cat3', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-124' },
+    { id: '4', description: 'OS #124', value: 3500, type: 'income', status: 'pending', due_date: '2023-06-20', category_id: 'cat1', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-124' },
+    { id: '5', description: 'Equipamentos', value: 8000, type: 'expense', status: 'pending', due_date: '2023-06-25', category_id: 'cat2', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), related_number: 'OS-125' },
   ]);
 
   const revenueData = [
@@ -60,18 +60,15 @@ const Financial = () => {
 
   const handleAddEntry = () => {
     toast.info('Funcionalidade de adicionar lançamento em desenvolvimento.');
-    // Lógica para abrir um modal/formulário de adição
   };
 
   const handleEditEntry = (entryId: string) => {
     toast.info(`Funcionalidade de editar lançamento ${entryId} em desenvolvimento.`);
-    // Lógica para abrir um modal/formulário de edição
   };
 
   const handleDeleteEntry = (entryId: string) => {
     setFinancialEntries(financialEntries.filter(entry => entry.id !== entryId));
     toast.success('Lançamento excluído com sucesso!');
-    // Lógica para excluir lançamento
   };
 
   const handleIssueInvoice = (entryId?: string) => {
@@ -80,7 +77,6 @@ const Financial = () => {
     } else {
       toast.success('Nota fiscal geral emitida e enviada para o cliente! (Simulado)');
     }
-    // Lógica para emissão e envio de nota fiscal (requer backend)
   };
 
   return (
@@ -109,7 +105,6 @@ const Financial = () => {
         </div>
       </div>
 
-      {/* Resumo Financeiro */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -145,7 +140,6 @@ const Financial = () => {
         </Card>
       </div>
 
-      {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -185,14 +179,14 @@ const Financial = () => {
                   {cashFlowData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
-                </Pie>                <Tooltip />
+                </Pie>
+                <Tooltip />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      {/* Lançamentos Financeiros */}
       <Card>
         <CardHeader>
           <CardTitle>Lançamentos Financeiros</CardTitle>
@@ -224,7 +218,7 @@ const Financial = () => {
                         {entry.type === 'income' ? 'Receita' : 'Despesa'}
                       </Badge>
                     </td>
-                    <td className="py-3">{new Date(entry.dueDate).toLocaleDateString('pt-BR')}</td>
+                    <td className="py-3">{new Date(entry.due_date).toLocaleDateString('pt-BR')}</td>
                     <td className="py-3">
                       <Badge className={getStatusColor(entry.status)}>
                         {getStatusText(entry.status)}

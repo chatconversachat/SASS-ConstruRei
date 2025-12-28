@@ -16,7 +16,6 @@ import {
   Phone, 
   Camera, 
   Video, 
-  FileText,
   Clock,
   CheckCircle,
   XCircle,
@@ -34,20 +33,21 @@ const VisitDetail = () => {
   const [videos, setVideos] = useState<File[]>([]);
   const [signature, setSignature] = useState<string | null>(null);
   
-  // Dados mockados para a visita (simulando busca por ID)
   const [visitData, setVisitData] = useState<Visit>(() => {
     const initialVisitNumber = id 
       ? `VIS-${id}` 
       : `VIS-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence)}`;
-    if (!id) updateSequence('visit'); // Incrementa a sequência apenas se for uma nova visita
+    if (!id) updateSequence('visit');
     
     return {
       id: id || '001',
       visit_number: initialVisitNumber,
-      client: 'João Silva', // Mocked client data
+      client: 'João Silva',
       propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
       technician: 'Carlos Silva',
       scheduledDate: '2023-06-20T10:00:00',
+      scheduled_date: '2023-06-20T10:00:00',
+      technician_id: 'Tech1',
       status: 'scheduled',
       notes: 'Visita para avaliação de reforma de cozinha. Cliente relatou problemas com azulejos e piso.',
       findings: [
@@ -132,7 +132,7 @@ const VisitDetail = () => {
     const newBudgetId = Date.now().toString();
     const newBudget: Budget = {
       id: newBudgetId,
-      budget_number: visitData.visit_number.replace('VIS-', 'ORC-'), // Mantém o mesmo número, muda o prefixo
+      budget_number: visitData.visit_number.replace('VIS-', 'ORC-'),
       lead_id: visitData.lead_id,
       visit_id: visitData.id,
       items: [
@@ -145,9 +145,7 @@ const VisitDetail = () => {
       updated_at: new Date().toISOString(),
     };
 
-    console.log('Orçamento gerado:', newBudget);
-    toast.success(`Orçamento ${newBudget.budget_number} gerado com sucesso!`);
-    updateSequence('budget'); // Incrementa a sequência do orçamento
+    updateSequence('budget');
     navigate(`/budgets/${newBudgetId}`, { state: { newBudget } });
   };
 
@@ -206,7 +204,6 @@ const VisitDetail = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Informações da Visita */}
           <Card>
             <CardHeader>
               <CardTitle>Informações da Visita</CardTitle>
@@ -228,13 +225,13 @@ const VisitDetail = () => {
                 <div className="flex items-center text-sm text-gray-600">
                   <Calendar className="h-4 w-4 mr-2" />
                   <span className="font-medium mr-2">Data:</span>
-                  <span>{new Date(visitData.scheduledDate).toLocaleDateString('pt-BR')}</span>
+                  <span>{visitData.scheduledDate ? new Date(visitData.scheduledDate).toLocaleDateString('pt-BR') : 'N/A'}</span>
                 </div>
                 
                 <div className="flex items-center text-sm text-gray-600">
                   <Clock className="h-4 w-4 mr-2" />
                   <span className="font-medium mr-2">Horário:</span>
-                  <span>{new Date(visitData.scheduledDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>{visitData.scheduledDate ? new Date(visitData.scheduledDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}</span>
                 </div>
               </div>
               
@@ -246,7 +243,6 @@ const VisitDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Observações */}
           <Card>
             <CardHeader>
               <CardTitle>Observações</CardTitle>
@@ -254,7 +250,7 @@ const VisitDetail = () => {
             <CardContent>
               {isEditing ? (
                 <Textarea
-                  value={visitData.notes}
+                  value={visitData.notes || ''}
                   onChange={(e) => setVisitData({...visitData, notes: e.target.value})}
                   rows={4}
                 />
@@ -264,7 +260,6 @@ const VisitDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Constatações */}
           <Card>
             <CardHeader>
               <CardTitle>Constatações</CardTitle>
@@ -317,7 +312,6 @@ const VisitDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Recomendações */}
           <Card>
             <CardHeader>
               <CardTitle>Recomendações</CardTitle>
@@ -370,7 +364,6 @@ const VisitDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Fotos */}
           <Card>
             <CardHeader>
               <CardTitle>Fotos</CardTitle>
@@ -382,21 +375,9 @@ const VisitDetail = () => {
                 acceptedFiles={photos}
                 accept="image/*"
               />
-              
-              {photos.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-                  {photos.map((photo, index) => (
-                    <div key={index} className="relative">
-                      <div className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-32" />
-                      <p className="text-xs text-center mt-1 truncate">{photo.name}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </CardContent>
           </Card>
 
-          {/* Vídeos */}
           <Card>
             <CardHeader>
               <CardTitle>Vídeos</CardTitle>
@@ -408,32 +389,18 @@ const VisitDetail = () => {
                 acceptedFiles={videos}
                 accept="video/*"
               />
-              
-              {videos.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-                  {videos.map((video, index) => (
-                    <div key={index} className="relative">
-                      <div className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-32 flex items-center justify-center">
-                        <Video className="h-8 w-8 text-gray-500" />
-                      </div>
-                      <p className="text-xs text-center mt-1 truncate">{video.name}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
 
         <div className="space-y-6">
-          {/* Status */}
           <Card>
             <CardHeader>
               <CardTitle>Status</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-center space-y-4">
-                <Badge className={getStatusColor(visitData.status)} size="lg">
+                <Badge className={getStatusColor(visitData.status)}>
                   {getStatusText(visitData.status)}
                 </Badge>
                 
@@ -455,7 +422,6 @@ const VisitDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Assinatura */}
           <Card>
             <CardHeader>
               <CardTitle>Assinatura</CardTitle>
@@ -493,30 +459,9 @@ const VisitDetail = () => {
               )}
             </CardContent>
           </Card>
-
-          {/* Histórico */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Histórico</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="border-l-2 border-blue-500 pl-4 py-1">
-                  <p className="font-medium">Visita agendada</p>
-                  <p className="text-sm text-gray-600">15/06/2023 às 09:00</p>
-                </div>
-                
-                <div className="border-l-2 border-gray-300 pl-4 py-1">
-                  <p className="font-medium">Visita realizada</p>
-                  <p className="text-sm text-gray-600">20/06/2023 às 10:30</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
 
-      {/* Modal de Assinatura */}
       {showSignaturePad && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg w-full max-w-md">

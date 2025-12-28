@@ -12,7 +12,6 @@ import {
   Send, 
   FileText, 
   Calendar, 
-  DollarSign, 
   User, 
   MapPin,
   Plus,
@@ -22,16 +21,15 @@ import {
 } from 'lucide-react';
 import { Budget, ServiceOrder } from '@/types';
 import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
-import { generatePdf } from '@/utils/pdfGenerator'; // Importar utilitário de PDF
+import { generatePdf } from '@/utils/pdfGenerator';
 
 const BudgetDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
-  const budgetContentRef = useRef<HTMLDivElement>(null); // Ref para o conteúdo do orçamento
+  const budgetContentRef = useRef<HTMLDivElement>(null);
 
-  // Estados para os dados do orçamento
   const [budgetData, setBudgetData] = useState<Budget>(() => {
     let initialBudget: Budget;
     if (location.state && (location.state as { newBudget: Budget }).newBudget) {
@@ -40,12 +38,12 @@ const BudgetDetail = () => {
       const initialBudgetNumber = id 
         ? `ORC-${id}` 
         : `ORC-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.budgetSequence)}`;
-      if (!id) updateSequence('budget'); // Incrementa a sequência apenas se for um novo orçamento
+      if (!id) updateSequence('budget');
       
       initialBudget = {
         id: id || '001',
         budget_number: initialBudgetNumber,
-        client: 'João Silva', // Mocked client data
+        client: 'João Silva',
         propertyAddress: 'Rua das Flores, 123 - São Paulo/SP',
         leadSource: 'Indicação',
         status: 'draft',
@@ -68,8 +66,9 @@ const BudgetDetail = () => {
           }
         ],
         notes: 'Orçamento para reforma completa da cozinha com troca de armários e piso.',
-        validity: '30 dias', // Este campo não está na interface Budget, manter como mock local
+        validity: '30 dias',
         lead_id: 'lead1',
+        total_value: 12800,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -77,13 +76,11 @@ const BudgetDetail = () => {
     return initialBudget;
   });
 
-  // Efeito para carregar dados de um novo orçamento vindo da página de visitas
   useEffect(() => {
     if (location.state && (location.state as { newBudget: Budget }).newBudget) {
       const newBudget = (location.state as { newBudget: Budget }).newBudget;
       setBudgetData(newBudget);
       toast.info(`Orçamento ${newBudget.budget_number} carregado da visita.`);
-      // Limpar o estado de navegação para evitar recarregar
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, navigate, location.pathname]);
@@ -120,14 +117,11 @@ const BudgetDetail = () => {
       items: prevData.items.map(item => {
         if (item.id === itemId) {
           const updatedItem = { ...item, [field]: value };
-          
-          // Recalcular valor total se quantidade ou valor unitário mudar
           if (field === 'quantity' || field === 'unit_value') {
             updatedItem.total_value = 
               (field === 'quantity' ? Number(value) : updatedItem.quantity) * 
               (field === 'unit_value' ? Number(value) : updatedItem.unit_value);
           }
-          
           return updatedItem;
         }
         return item;
@@ -143,8 +137,6 @@ const BudgetDetail = () => {
   const handleSend = () => {
     setBudgetData(prevData => ({ ...prevData, status: 'sent', sent_at: new Date().toISOString() }));
     toast.success('Orçamento enviado por e-mail e WhatsApp com sucesso! (Simulado)');
-    // Em um app real, aqui você chamaria uma API de backend para enviar o PDF
-    // por e-mail e/ou WhatsApp.
   };
 
   const handleApprove = () => {
@@ -161,7 +153,7 @@ const BudgetDetail = () => {
     const newServiceOrderId = Date.now().toString();
     const newServiceOrder: ServiceOrder = {
       id: newServiceOrderId,
-      service_order_number: budgetData.budget_number.replace('ORC-', 'OS-'), // Mantém o mesmo número, muda o prefixo
+      service_order_number: budgetData.budget_number.replace('ORC-', 'OS-'),
       budget_id: budgetData.id,
       client_id: budgetData.lead_id,
       technician_id: 'Tech1',
@@ -172,9 +164,8 @@ const BudgetDetail = () => {
       updated_at: new Date().toISOString(),
     };
 
-    console.log('Ordem de Serviço gerada:', newServiceOrder);
     toast.success(`Ordem de Serviço ${newServiceOrder.service_order_number} gerada com sucesso!`);
-    updateSequence('serviceOrder'); // Incrementa a sequência da OS
+    updateSequence('serviceOrder');
     navigate(`/service-orders/${newServiceOrderId}`, { state: { newServiceOrder } });
   };
 
@@ -185,8 +176,6 @@ const BudgetDetail = () => {
         filename: `Orcamento-${budgetData.budget_number}.pdf`,
       });
       toast.success('PDF do orçamento gerado e baixado!');
-    } else {
-      toast.error('Não foi possível gerar o PDF. Conteúdo do orçamento não encontrado.');
     }
   };
 
@@ -250,8 +239,7 @@ const BudgetDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6" id="budget-content" ref={budgetContentRef}> {/* Adicionado ID e ref para PDF */}
-          {/* Informações do Cliente */}
+        <div className="lg:col-span-2 space-y-6" id="budget-content" ref={budgetContentRef}>
           <Card>
             <CardHeader>
               <CardTitle>Informações do Cliente</CardTitle>
@@ -262,7 +250,7 @@ const BudgetDetail = () => {
                 <span className="font-medium mr-2">Cliente:</span>
                 {isEditing ? (
                   <Input 
-                    value={budgetData.client} 
+                    value={budgetData.client || ''} 
                     onChange={(e) => setBudgetData({...budgetData, client: e.target.value})}
                     className="flex-1"
                   />
@@ -276,7 +264,7 @@ const BudgetDetail = () => {
                 <span className="font-medium mr-2">Endereço:</span>
                 {isEditing ? (
                   <Textarea 
-                    value={budgetData.propertyAddress} 
+                    value={budgetData.propertyAddress || ''} 
                     onChange={(e) => setBudgetData({...budgetData, propertyAddress: e.target.value})}
                     className="flex-1"
                   />
@@ -290,7 +278,7 @@ const BudgetDetail = () => {
                 <span className="font-medium mr-2">Origem:</span>
                 {isEditing ? (
                   <Input 
-                    value={budgetData.leadSource} 
+                    value={budgetData.leadSource || ''} 
                     onChange={(e) => setBudgetData({...budgetData, leadSource: e.target.value})}
                     className="flex-1"
                   />
@@ -304,7 +292,7 @@ const BudgetDetail = () => {
                 <span className="font-medium mr-2">Validade:</span>
                 {isEditing ? (
                   <Input 
-                    value={budgetData.validity} 
+                    value={budgetData.validity || ''} 
                     onChange={(e) => setBudgetData({...budgetData, validity: e.target.value})}
                     className="flex-1"
                   />
@@ -315,7 +303,6 @@ const BudgetDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Itens do Orçamento */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Itens do Orçamento</CardTitle>
@@ -408,7 +395,6 @@ const BudgetDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Observações */}
           <Card>
             <CardHeader>
               <CardTitle>Observações</CardTitle>
@@ -416,7 +402,7 @@ const BudgetDetail = () => {
             <CardContent>
               {isEditing ? (
                 <Textarea
-                  value={budgetData.notes}
+                  value={budgetData.notes || ''}
                   onChange={(e) => setBudgetData({...budgetData, notes: e.target.value})}
                   rows={4}
                 />
@@ -428,14 +414,13 @@ const BudgetDetail = () => {
         </div>
 
         <div className="space-y-6">
-          {/* Status */}
           <Card>
             <CardHeader>
               <CardTitle>Status</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-center space-y-4">
-                <Badge className={getStatusColor(budgetData.status)} size="lg">
+                <Badge className={getStatusColor(budgetData.status)}>
                   {getStatusText(budgetData.status)}
                 </Badge>
                 
@@ -457,7 +442,6 @@ const BudgetDetail = () => {
             </CardContent>
           </Card>
 
-          {/* Histórico */}
           <Card>
             <CardHeader>
               <CardTitle>Histórico</CardTitle>
@@ -467,16 +451,6 @@ const BudgetDetail = () => {
                 <div className="border-l-2 border-blue-500 pl-4 py-1">
                   <p className="font-medium">Orçamento criado</p>
                   <p className="text-sm text-gray-600">15/06/2023 às 10:30</p>
-                </div>
-                
-                <div className="border-l-2 border-gray-300 pl-4 py-1">
-                  <p className="font-medium">Orçamento enviado</p>
-                  <p className="text-sm text-gray-600">16/06/2023 às 14:15</p>
-                </div>
-                
-                <div className="border-l-2 border-gray-300 pl-4 py-1">
-                  <p className="font-medium">Orçamento aprovado</p>
-                  <p className="text-sm text-gray-600">18/06/2023 às 09:45</p>
                 </div>
               </div>
             </CardContent>

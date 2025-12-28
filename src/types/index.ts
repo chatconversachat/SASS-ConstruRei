@@ -33,21 +33,28 @@ export interface Lead {
 
 export interface Visit {
   id: string;
-  visit_number: string; // Novo campo
+  visit_number: string;
   lead_id: string;
   scheduled_date: string;
   technician_id: string;
   status: 'scheduled' | 'completed' | 'cancelled';
   notes?: string;
+  findings: string[];
+  recommendations: string[];
   photos: string[];
   videos: string[];
   created_at: string;
   updated_at: string;
+  // UI helper fields
+  client?: string;
+  propertyAddress?: string;
+  technician?: string;
+  scheduledDate?: string;
 }
 
 export interface Budget {
   id: string;
-  budget_number: string; // Novo campo
+  budget_number: string;
   lead_id: string;
   visit_id?: string;
   items: BudgetItem[];
@@ -57,6 +64,12 @@ export interface Budget {
   updated_at: string;
   sent_at?: string;
   approved_at?: string;
+  // UI helper fields
+  client?: string;
+  propertyAddress?: string;
+  notes?: string;
+  leadSource?: string;
+  validity?: string;
 }
 
 export interface BudgetItem {
@@ -70,7 +83,7 @@ export interface BudgetItem {
 
 export interface ServiceOrder {
   id: string;
-  service_order_number: string; // Novo campo
+  service_order_number: string;
   budget_id: string;
   client_id: string;
   technician_id: string;
@@ -78,12 +91,37 @@ export interface ServiceOrder {
   start_date?: string;
   end_date?: string;
   notes?: string;
-  completion_date?: string; // Novo campo
-  completion_notes?: string; // Novo campo
-  completion_photos?: string[]; // Novo campo
-  completion_videos?: string[]; // Novo campo
+  completion_date?: string;
+  completion_notes?: string;
+  completion_photos?: string[];
+  completion_videos?: string[];
   created_at: string;
   updated_at: string;
+  // UI helper fields
+  client?: string;
+  propertyAddress?: string;
+  technician?: string;
+  startDate?: string;
+  endDate?: string;
+  budgetId?: string;
+  services?: ServiceOrderItem[];
+  materials?: ServiceOrderMaterial[];
+}
+
+export interface ServiceOrderItem {
+  id: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  startDate: string | null;
+  endDate: string | null;
+}
+
+export interface ServiceOrderMaterial {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  status: 'pending' | 'ordered' | 'delivered';
 }
 
 export interface WorkDiary {
@@ -110,7 +148,7 @@ export interface FinancialEntry {
   category_id: string;
   created_at: string;
   updated_at: string;
-  related_number?: string; // Novo campo para vincular ao número da OS/Orçamento/Visita
+  related_number?: string;
 }
 
 export interface FinancialCategory {
@@ -153,9 +191,9 @@ export interface DistributionConfig {
 export interface Appointment {
   id: string;
   title: string;
-  date: string; // ISO string or Date object
-  startTime: string; // e.g., "09:00"
-  endTime: string; // e.g., "10:00"
+  date: string;
+  startTime: string;
+  endTime: string;
   clientName: string;
   technicianName?: string;
   type: 'visit' | 'meeting' | 'budget' | 'other';

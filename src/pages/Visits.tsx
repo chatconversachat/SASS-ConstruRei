@@ -7,7 +7,7 @@ import { Search, Calendar, User, Camera, Video } from 'lucide-react';
 import { Visit } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { generateSequentialNumber, appNumberConfig, updateSequence } from '@/utils/numberGenerator';
-import { toast } from 'sonner'; // Importar toast
+import { toast } from 'sonner';
 
 const Visits = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,6 +23,8 @@ const Visits = () => {
       technician_id: 'Tech1',
       status: 'scheduled',
       notes: 'Visita para avaliação de reforma de cozinha',
+      findings: [],
+      recommendations: [],
       photos: ['photo1.jpg', 'photo2.jpg'],
       videos: ['video1.mp4'],
       created_at: new Date().toISOString(),
@@ -36,6 +38,8 @@ const Visits = () => {
       technician_id: 'Tech2',
       status: 'scheduled',
       notes: 'Visita para instalação de ar condicionado',
+      findings: [],
+      recommendations: [],
       photos: [],
       videos: [],
       created_at: new Date().toISOString(),
@@ -49,6 +53,8 @@ const Visits = () => {
       technician_id: 'Tech1',
       status: 'completed',
       notes: 'Visita realizada com sucesso. Cliente aprovou orçamento.',
+      findings: [],
+      recommendations: [],
       photos: ['photo3.jpg', 'photo4.jpg', 'photo5.jpg'],
       videos: ['video2.mp4'],
       created_at: new Date().toISOString(),
@@ -59,15 +65,17 @@ const Visits = () => {
   const handleNewVisit = () => {
     const newId = Date.now().toString();
     const newVisitNumber = `VIS-${generateSequentialNumber(appNumberConfig.prefix, appNumberConfig.visitSequence)}`;
-    updateSequence('visit'); // Incrementa a sequência
+    updateSequence('visit');
     const newVisit: Visit = {
       id: newId,
       visit_number: newVisitNumber,
-      lead_id: 'new_lead', // Placeholder
+      lead_id: 'new_lead',
       scheduled_date: new Date().toISOString(),
-      technician_id: 'New Tech', // Placeholder
+      technician_id: 'New Tech',
       status: 'scheduled',
       notes: 'Nova visita agendada',
+      findings: [],
+      recommendations: [],
       photos: [],
       videos: [],
       created_at: new Date().toISOString(),
