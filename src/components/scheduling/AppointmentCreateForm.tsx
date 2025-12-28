@@ -32,7 +32,7 @@ const formSchema = z.object({
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
   clientName: z.string().min(2, { message: "Nome do cliente é obrigatório." }),
   technicianName: z.string().optional(),
-  type: z.enum(['visit', 'meeting', 'budget', 'other']),
+  type: z.enum(['visit', 'meeting', 'budget', 'execution', 'other']),
   propertyAddress: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -163,6 +163,7 @@ const AppointmentCreateForm: React.FC<AppointmentCreateFormProps> = ({ initialDa
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="visit">Visita Técnica</SelectItem>
+                    <SelectItem value="execution">Execução / Obra</SelectItem>
                     <SelectItem value="meeting">Reunião</SelectItem>
                     <SelectItem value="budget">Orçamento</SelectItem>
                     <SelectItem value="other">Outro</SelectItem>

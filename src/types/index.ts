@@ -196,7 +196,7 @@ export interface Appointment {
   endTime: string;
   clientName: string;
   technicianName?: string;
-  type: 'visit' | 'meeting' | 'budget' | 'other';
+  type: 'visit' | 'meeting' | 'budget' | 'execution' | 'other';
   status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
   notes?: string;
   propertyAddress?: string;
